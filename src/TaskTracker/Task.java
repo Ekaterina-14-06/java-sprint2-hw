@@ -1,14 +1,16 @@
+package TaskTracker;
+
 public class Task {
-    private Integer taskId;
+    private Long taskId;
     private String taskName;
     private String taskDescription;
     private String taskStatus;
 
-    public Integer getTaskId() {
+    public Long getTaskId() {
         return taskId;
     }
 
-    public void setTaskId(Integer taskId) {
+    public void setTaskId(Long taskId) {
         this.taskId = taskId;
     }
 

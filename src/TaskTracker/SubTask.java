@@ -1,11 +1,13 @@
-public class SubTask extends Task {
-    private Integer numberOfEpic;
+package TaskTracker;
 
-    public Integer getNumberOfEpic() {
+public class SubTask extends Task {
+    private Long numberOfEpic;
+
+    public Long getNumberOfEpic() {
         return numberOfEpic;
     }
 
-    public void setNumberOfEpic(Integer numberOfEpic) {
+    public void setNumberOfEpic(Long numberOfEpic) {
         this.numberOfEpic = numberOfEpic;
     }
 
