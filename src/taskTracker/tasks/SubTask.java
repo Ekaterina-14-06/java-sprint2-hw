@@ -1,4 +1,4 @@
-package TaskTracker;
+package taskTracker.tasks;
 
 public class SubTask extends Task {
     private Long numberOfEpic;

@@ -1,4 +1,4 @@
-package TaskTracker;
+package taskTracker.tasks;
 
 public class Task {
     private Long taskId;

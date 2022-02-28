@@ -1,5 +1,6 @@
 // Задание выполнила: Лядова Екатерина В.
-import TaskTracker.*;
+import taskTracker.manager.*;
+
 
 import java.util.Scanner;
 

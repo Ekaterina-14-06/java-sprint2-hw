@@ -1,5 +1,6 @@
-package TaskTracker;
+package taskTracker.manager;
 
+import taskTracker.tasks.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -21,71 +22,6 @@ public class Manager {
     Scanner scanner = new Scanner(System.in);
 
     // Описание методов данного класса:
-
-    // Метод addNewTask создаёт новую задачу типа Task
-    public void addNewTask(String name,
-                           String description,
-                           String status) {
-        if (listOfFreeNumber.isEmpty()) {
-            currentNumberOfTasks = ++countOfTasks;
-        } else {
-            currentNumberOfTasks = listOfFreeNumber.get(0);
-            listOfFreeNumber.remove(0);
-        }
-        // Создание объекта (задачи) типа Task:
-        Task task = new Task();
-        // Устанавление значений полей объекта типа Task перед его добавлением в HashMap listOfTasks:
-        task.setTaskId(currentNumberOfTasks);
-        task.setTaskName(name);
-        task.setTaskDescription(description);
-        task.setTaskStatus(status);
-        // Добавление объекта (задачи) типа Task в HashMap listOfTasks:
-        listOfTasks.put(currentNumberOfTasks, task);
-    }
-
-    // Метод addNewEpic создаёт новую задачу типа Epic
-    public void addNewEpic(String name,
-                           String description,
-                           String status) {
-        if (listOfFreeNumber.isEmpty()) {
-            currentNumberOfTasks = ++countOfTasks;
-        } else {
-            currentNumberOfTasks = listOfFreeNumber.get(0);
-            listOfFreeNumber.remove(0);
-        }
-        // Создание объекта (задачи) типа Task:
-        Epic epic = new Epic();
-        // Устанавление значений полей объекта типа Task перед его добавлением в HashMap listOfTasks:
-        epic.setTaskId(currentNumberOfTasks);
-        epic.setTaskName(name);
-        epic.setTaskDescription(description);
-        epic.setTaskStatus(status);
-        // Добавление объекта (задачи) типа Task в HashMap listOfTasks:
-        listOfEpics.put(currentNumberOfTasks, epic);
-    }
-
-    // Метод addNewSubTask создаёт новую задачу типа SubTask
-    public void addNewSubTask(String name,
-                              String description,
-                              String status,
-                              Long numberOfEpic) {
-        if (listOfFreeNumber.isEmpty()) {
-            currentNumberOfTasks = ++countOfTasks;
-        } else {
-            currentNumberOfTasks = listOfFreeNumber.get(0);
-            listOfFreeNumber.remove(0);
-        }
-        // Создание объекта (задачи) типа Task:
-        SubTask subTask = new SubTask();
-        // Устанавление значений полей объекта типа Task перед его добавлением в HashMap listOfTasks:
-        subTask.setTaskId(currentNumberOfTasks);
-        subTask.setTaskName(name);
-        subTask.setTaskDescription(description);
-        subTask.setTaskStatus(status);
-        subTask.setNumberOfEpic(numberOfEpic);
-        // Добавление объекта (задачи) типа Task в HashMap listOfTasks:
-        listOfSubTasks.put(currentNumberOfTasks, subTask);
-    }
 
     // Метод addTask создаёт новую задачу любого из трёх типов (Task, Epic или SubTask)
     public void addTask() {
@@ -111,7 +47,22 @@ public class Manager {
 
                 System.out.print("Введите описание задачи: ");
                 description = scanner.next();
-                addNewTask(name, description, "new");
+
+                if (listOfFreeNumber.isEmpty()) {
+                    currentNumberOfTasks = ++countOfTasks;
+                } else {
+                    currentNumberOfTasks = listOfFreeNumber.get(0);
+                    listOfFreeNumber.remove(0);
+                }
+                // Создание объекта (задачи) типа Task:
+                Task task = new Task();
+                // Устанавление значений полей объекта типа Task перед его добавлением в HashMap listOfTasks:
+                task.setTaskId(currentNumberOfTasks);
+                task.setTaskName(name);
+                task.setTaskDescription(description);
+                task.setTaskStatus("new");
+                // Добавление объекта (задачи) типа Task в HashMap listOfTasks:
+                listOfTasks.put(currentNumberOfTasks, task);
                 break;
             case ("2"):
                 System.out.print("Введите имя задачи: ");
@@ -121,7 +72,22 @@ public class Manager {
 
                 System.out.print("Введите описание задачи: ");
                 description = scanner.next();
-                addNewEpic(name, description, "new");
+
+                if (listOfFreeNumber.isEmpty()) {
+                    currentNumberOfTasks = ++countOfTasks;
+                } else {
+                    currentNumberOfTasks = listOfFreeNumber.get(0);
+                    listOfFreeNumber.remove(0);
+                }
+                // Создание объекта (задачи) типа Task:
+                Epic epic = new Epic();
+                // Устанавление значений полей объекта типа Task перед его добавлением в HashMap listOfTasks:
+                epic.setTaskId(currentNumberOfTasks);
+                epic.setTaskName(name);
+                epic.setTaskDescription(description);
+                epic.setTaskStatus("new");
+                // Добавление объекта (задачи) типа Task в HashMap listOfTasks:
+                listOfEpics.put(currentNumberOfTasks, epic);
                 break;
             case ("3"):
                 if (listOfEpics.size() == 0) {
@@ -145,15 +111,27 @@ public class Manager {
                     System.out.print("Введите номер epic для данной subTask: ");
                     numberOfEpic = scanner.nextLong();
                     if (listOfEpics.containsKey(numberOfEpic)) {
-                        addNewSubTask(name, description, "new", numberOfEpic);
+                        if (listOfFreeNumber.isEmpty()) {
+                            currentNumberOfTasks = ++countOfTasks;
+                        } else {
+                            currentNumberOfTasks = listOfFreeNumber.get(0);
+                            listOfFreeNumber.remove(0);
+                        }
+                        // Создание объекта (задачи) типа Task:
+                        SubTask subTask = new SubTask();
+                        // Устанавление значений полей объекта типа Task перед его добавлением в HashMap listOfTasks:
+                        subTask.setTaskId(currentNumberOfTasks);
+                        subTask.setTaskName(name);
+                        subTask.setTaskDescription(description);
+                        subTask.setTaskStatus("new");
+                        subTask.setNumberOfEpic(numberOfEpic);
+                        // Добавление объекта (задачи) типа Task в HashMap listOfTasks:
+                        listOfSubTasks.put(currentNumberOfTasks, subTask);
                         break;
                     } else {
                         System.out.println("Такого epic пока нет.");
                     }
                 } while (true);
-
-                addNewSubTask(name, description, "new", numberOfEpic);
-                break;
             default:
                 System.out.println("Ошибка, неверный выбор меню. Задание не добавлено.");
         }
