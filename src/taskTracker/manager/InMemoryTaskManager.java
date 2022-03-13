@@ -1,11 +1,12 @@
 package taskTracker.manager;
 
+import com.sun.tools.javac.Main;
 import taskTracker.tasks.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
-public class Manager {
+public class InMemoryTaskManager extends Managers implements TaskManager {
     // Объявление локальных переменных:
     private HashMap<Long, Task> listOfTasks = new HashMap<>();
     // listOfTasks - список задач типа Task
@@ -20,10 +21,12 @@ public class Manager {
     ArrayList<Long> listOfFreeNumber = new ArrayList<>();
     // listOfFreeNumber - список, содержащий освободившиеся номера задач после их удаления
     Scanner scanner = new Scanner(System.in);
-
+    public static InMemoryHistoryManager history = new InMemoryHistoryManager();
+    //InMemoryHistoryManager history = new InMemoryHistoryManager(); // <-----------------------------------------------------------------------------------------------------------
     // Описание методов данного класса:
 
     // Метод addTask создаёт новую задачу любого из трёх типов (Task, Epic или SubTask)
+    @Override
     public void addTask() {
         System.out.print("Выберите тип задачи (1 - task, 2 - epic, 3 - subtask): ");
         String choice;
@@ -60,9 +63,10 @@ public class Manager {
                 task.setTaskId(currentNumberOfTasks);
                 task.setTaskName(name);
                 task.setTaskDescription(description);
-                task.setTaskStatus("new");
+                task.setTaskStatus(TaskStatus.NEW);
                 // Добавление объекта (задачи) типа Task в HashMap listOfTasks:
                 listOfTasks.put(currentNumberOfTasks, task);
+                history.add(task); // <-----------------------------------------------------------------------------------------------------------
                 break;
             case ("2"):
                 System.out.print("Введите имя задачи: ");
@@ -85,9 +89,10 @@ public class Manager {
                 epic.setTaskId(currentNumberOfTasks);
                 epic.setTaskName(name);
                 epic.setTaskDescription(description);
-                epic.setTaskStatus("new");
+                epic.setTaskStatus(TaskStatus.NEW);
                 // Добавление объекта (задачи) типа Task в HashMap listOfTasks:
                 listOfEpics.put(currentNumberOfTasks, epic);
+                history.add(epic); // <-----------------------------------------------------------------------------------------------------------
                 break;
             case ("3"):
                 if (listOfEpics.size() == 0) {
@@ -123,10 +128,11 @@ public class Manager {
                         subTask.setTaskId(currentNumberOfTasks);
                         subTask.setTaskName(name);
                         subTask.setTaskDescription(description);
-                        subTask.setTaskStatus("new");
+                        subTask.setTaskStatus(TaskStatus.NEW);
                         subTask.setNumberOfEpic(numberOfEpic);
                         // Добавление объекта (задачи) типа Task в HashMap listOfTasks:
                         listOfSubTasks.put(currentNumberOfTasks, subTask);
+                        history.add(subTask); // <-----------------------------------------------------------------------------------------------------------
                         break;
                     } else {
                         System.out.println("Такого epic пока нет.");
@@ -138,6 +144,7 @@ public class Manager {
     }
 
     // Метод deleteAllTasks удаляет все задачи
+    @Override
     public void deleteAllTasks() {
         listOfTasks.clear();
         listOfEpics.clear();
@@ -146,6 +153,7 @@ public class Manager {
 
     // Метод deleteTask удаляет задачу типа Task
     public void deleteTask(Long numberOfTask) {
+        history.add(listOfTasks.get(numberOfTask)); // <-----------------------------------------------------------------------------------------------------------
         listOfTasks.remove(numberOfTask);
     }
 
@@ -157,16 +165,19 @@ public class Manager {
                 listOfSubTasks.remove(key);
             }
         }
+        history.add(listOfEpics.get(numberOfEpic)); // <-----------------------------------------------------------------------------------------------------------
         // Удаление выбранной задачи типа Epic
         listOfEpics.remove(numberOfEpic);
     }
 
     // Метод deleteSubTask удаляет задачу типа SubTask
     public void deleteSubTask(Long numberOfSubTask) {
+        history.add(listOfSubTasks.get(numberOfSubTask)); // <-----------------------------------------------------------------------------------------------------------
         listOfSubTasks.remove(numberOfSubTask);
     }
 
     // Метод removeTask удаляет задачу (любого из трёх типов - Task, Epic или SubTask), выбранную пользователем
+    @Override
     public void removeTask() {
         showAllTasks();
         System.out.print("Введите номер задачи, которую хотите удалить: ");
@@ -184,16 +195,17 @@ public class Manager {
             boolean isDone = false;
             for (Long key : listOfSubTasks.keySet()) {
                 if (listOfSubTasks.get(key).getNumberOfEpic().equals(numberOfEpic)) {
-                    isDone = listOfSubTasks.get(key).getTaskStatus().equals("done");
+                    isDone = listOfSubTasks.get(key).getTaskStatus().equals(TaskStatus.DONE);
                 }
             }
             if (isDone) {
-                listOfEpics.get(numberOfEpic).setTaskStatus("done");
+                listOfEpics.get(numberOfEpic).setTaskStatus(TaskStatus.DONE);
             }
         }
     }
 
     // Метод showAllTasks выводит на экран список всех задач любого из трёх типов (Task, Epic или SubTask)
+    @Override
     public void showAllTasks() {
         if (listOfTasks.size() != 0) {
             System.out.println("Список задач типа Task:");
@@ -230,6 +242,7 @@ public class Manager {
         System.out.println("Имя задачи: " + listOfTasks.get(numberOfTask).getTaskName());
         System.out.println("Описание задачи: " + listOfTasks.get(numberOfTask).getTaskDescription());
         System.out.println("Статус задачи: " + listOfTasks.get(numberOfTask).getTaskStatus());
+        history.add(listOfTasks.get(numberOfTask)); // <-----------------------------------------------------------------------------------------------------------
     }
 
     // Метод showEpic выводит на экран список задач типа Epic
@@ -244,6 +257,7 @@ public class Manager {
             }
         }
         System.out.println("");
+        history.add(listOfEpics.get(numberOfTask)); // <-----------------------------------------------------------------------------------------------------------
     }
 
     // Метод showSubTask выводит на экран список задач типа SubTask
@@ -252,9 +266,11 @@ public class Manager {
         System.out.println("Описание задачи: " + listOfSubTasks.get(numberOfTask).getTaskDescription());
         System.out.println("Статус задачи: " + listOfSubTasks.get(numberOfTask).getTaskStatus());
         System.out.println("Номер epic для задачи: " + listOfSubTasks.get(numberOfTask).getNumberOfEpic());
+        history.add(listOfSubTasks.get(numberOfTask)); // <-----------------------------------------------------------------------------------------------------------
     }
 
     // Метод showOneTask выводит на экран задачу, выбранную пользователем
+    @Override
     public void showOneTask() {
         System.out.print("Введите номер задачи, параметры которой хотите увидеть: ");
         Long numberOfTask = scanner.nextLong();
@@ -270,6 +286,7 @@ public class Manager {
     }
 
     // Метод changeTask меняет значения параметров задачи на новые, полученные от пользователя
+    @Override
     public void changeTask() {
         showAllTasks();
         System.out.print("Ввведите номер задачи, которую хотите изменить: ");
@@ -279,16 +296,19 @@ public class Manager {
             listOfTasks.get(numberOfTask).setTaskName(scanner.next());
             System.out.print("Введите новое описание задачи: ");
             listOfTasks.get(numberOfTask).setTaskDescription(scanner.next());
+            history.add(listOfTasks.get(numberOfTask));
         } else if (listOfEpics.containsKey(numberOfTask)) {
             System.out.print("Введите новое название задачи: ");
             listOfEpics.get(numberOfTask).setTaskName(scanner.next());
             System.out.print("Введите новое описание задачи: ");
             listOfEpics.get(numberOfTask).setTaskDescription(scanner.next());
+            history.add(listOfEpics.get(numberOfTask));
         } else if (listOfSubTasks.containsKey(numberOfTask)) {
             System.out.print("Введите новое название задачи: ");
             listOfSubTasks.get(numberOfTask).setTaskName(scanner.next());
             System.out.print("Введите новое описание задачи: ");
             listOfSubTasks.get(numberOfTask).setTaskDescription(scanner.next());
+            history.add(listOfSubTasks.get(numberOfTask));
         } else {
             System.out.println("Такой задачи нет.");
         }
@@ -296,6 +316,7 @@ public class Manager {
 
 
     // Метод changeStatus меняет статус (new, in progress, done) выбранной задачи
+    @Override
     public void changeStatus() {
         showAllTasks();
         System.out.print("Выберите номер задачи, статус которой хотите поменять: ");
@@ -305,12 +326,13 @@ public class Manager {
             System.out.print("Введите новый статус (1 - in progress, 2 - done): ");
             status = scanner.nextInt();
             if (status == 1) {
-                listOfTasks.get(numberOfTask).setTaskStatus("in progress");
+                listOfTasks.get(numberOfTask).setTaskStatus(TaskStatus.IN_PROGRESS);
             } else if (status == 2) {
-                listOfTasks.get(numberOfTask).setTaskStatus("done");
+                listOfTasks.get(numberOfTask).setTaskStatus(TaskStatus.DONE);
             } else {
                 System.out.println("Вы ввели неверное значение статуса.");
             }
+            history.add(listOfTasks.get(numberOfTask));
         } else if (listOfEpics.containsKey(numberOfTask)) {
             System.out.println("Задачи типа Epic самостоятельно менять статус не могут.\n" +
                                "Их состояние меняется автоматически при смене статусов её подзадач (SubTask).");
@@ -318,23 +340,25 @@ public class Manager {
             System.out.println("Введите новый статус (1 - in progress, 2 - done): ");
             status = scanner.nextInt();
             if (status == 1) {
-                listOfSubTasks.get(numberOfTask).setTaskStatus("in progress");
+                listOfSubTasks.get(numberOfTask).setTaskStatus(TaskStatus.IN_PROGRESS);
             } else if (status == 2) {
-                listOfSubTasks.get(numberOfTask).setTaskStatus("done");
+                listOfSubTasks.get(numberOfTask).setTaskStatus(TaskStatus.DONE);
                 // Проверка остальных задач типа SubTask данной задачи типа Epic на соответствие состоянию done
                 Long numberOfEpic = listOfSubTasks.get(numberOfTask).getNumberOfEpic();
                 boolean isDone = false;
                 for (Long key : listOfSubTasks.keySet()) {
                     if (listOfSubTasks.get(key).getNumberOfEpic().equals(numberOfEpic)) {
-                        isDone = listOfSubTasks.get(key).getTaskStatus().equals("done");
+                        isDone = listOfSubTasks.get(key).getTaskStatus().equals(TaskStatus.DONE);
                     }
                 }
                 if (isDone) {
-                    listOfEpics.get(numberOfEpic).setTaskStatus("done");
+                    listOfEpics.get(numberOfEpic).setTaskStatus(TaskStatus.DONE);
                 }
             } else {
                 System.out.println("Вы ввели неверное значение.");
             }
+            history.add(listOfSubTasks.get(numberOfTask));
         }
     }
+
 }

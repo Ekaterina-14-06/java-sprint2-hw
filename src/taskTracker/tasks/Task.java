@@ -1,10 +1,11 @@
 package taskTracker.tasks;
+import taskTracker.manager.TaskStatus;
 
 public class Task {
     private Long taskId;
     private String taskName;
     private String taskDescription;
-    private String taskStatus;
+    private TaskStatus taskStatus;
 
     public Long getTaskId() {
         return taskId;
@@ -30,11 +31,11 @@ public class Task {
         this.taskDescription = taskDescription;
     }
 
-    public String getTaskStatus() {
+    public TaskStatus getTaskStatus() {
         return taskStatus;
     }
 
-    public void setTaskStatus(String taskStatus) {
+    public void setTaskStatus(TaskStatus taskStatus) {
         this.taskStatus = taskStatus;
     }
 
