@@ -4,14 +4,13 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-
-        InMemoryTaskManager manager = new InMemoryTaskManager();
-
-
+        TaskManager taskManager = Managers.getDefault();
+        HistoryManager historyManager = Managers.getDefaultHistory();
+        //InMemoryTaskManager manager = new InMemoryTaskManager();
         Scanner scanner = new Scanner(System.in);
         String choice;
         do {
-            System.out.println("\nВыберите пункт меню:\n" +
+            System.out.println("\nВыберите пункт меню (его номер):\n" +
                     "1 - добавить задачу\n" +
                     "2 - изменить задачу\n" +
                     "3 - изменить статус задачи\n" +
@@ -24,28 +23,29 @@ public class Main {
             choice = scanner.next();
             switch (choice) {
                 case ("1"):
-                    manager.addTask();
+                    taskManager.addTask();
                     break;
                 case ("2"):
-                    manager.changeTask();
+                    taskManager.changeTask();
                     break;
                 case ("3"):
-                    manager.changeStatus();
+                    taskManager.changeStatus();
                     break;
                 case ("4"):
-                    manager.removeTask();
+                    taskManager.removeTask();
                     break;
                 case ("5"):
-                    manager.deleteAllTasks();
+                    taskManager.deleteAllTasks();
                     break;
                 case ("6"):
-                    manager.showOneTask();
+                    taskManager.showOneTask();
                     break;
                 case ("7"):
-                    manager.showAllTasks();
+                    taskManager.showAllTasks();
                     break;
                 case ("8"):
-                    InMemoryTaskManager.history.getHistory();
+                    historyManager.history();
+                    break;
                 case ("0"):
                     break;
                 default:

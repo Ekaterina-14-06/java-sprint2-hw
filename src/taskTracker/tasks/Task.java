@@ -7,6 +7,8 @@ public class Task {
     private String taskDescription;
     private TaskStatus taskStatus;
 
+    public Task() {}
+
     public Long getTaskId() {
         return taskId;
     }

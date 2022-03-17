@@ -1,25 +1,12 @@
 package taskTracker.manager;
 
-public abstract class Managers implements TaskManager {
+public class Managers {
 
-    @Override
-    public void addTask() {};
+    public static TaskManager getDefault() {
+        return new InMemoryTaskManager();
+    }
 
-    @Override
-    public void deleteAllTasks() {};
-
-    @Override
-    public void removeTask() {};
-
-    @Override
-    public void showAllTasks() {};
-
-    @Override
-    public void showOneTask() {};
-
-    @Override
-    public void changeTask() {};
-
-    @Override
-    public void changeStatus() {};
+    public static HistoryManager getDefaultHistory() {
+        return new InMemoryHistoryManager();
+    }
 }

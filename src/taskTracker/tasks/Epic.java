@@ -3,7 +3,11 @@ package taskTracker.tasks;
 import java.util.HashMap;
 
 public class Epic extends Task {
-    private HashMap<Integer, SubTask> listOfSubTasks = new HashMap<>();
+    private HashMap<Integer, SubTask> listOfSubTasks;
+
+    public Epic() {
+        this.listOfSubTasks = new HashMap<>();
+    }
 
     public HashMap<Integer, SubTask> getListOfSubTasks() {
         return listOfSubTasks;
@@ -24,6 +28,5 @@ public class Epic extends Task {
                 "Описание задачи: " + getTaskDescription() + "\n" +
                 "Статус задачи: " + getTaskStatus() + "\n" +
                 "В состав данной задачи входят подзадачи типа SubTask с номерами " + result + "\n";
-
     }
 }
