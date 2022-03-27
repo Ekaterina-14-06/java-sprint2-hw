@@ -31,6 +31,20 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     // Описание методов данного класса:
+    @Override
+    public void newTask(Task task) {
+        listOfTasks.put(task.getTaskId(), task);
+    }
+
+    @Override
+    public void newEpic(Epic epic) {
+        listOfEpics.put(epic.getTaskId(), epic);
+    }
+
+    @Override
+    public void newSubTask(SubTask subTask) {
+        listOfSubTasks.put(subTask.getTaskId(), subTask);
+    }
 
     // Метод addTask создаёт новую задачу любого из трёх типов (Task, Epic или SubTask)
     @Override
@@ -72,7 +86,7 @@ public class InMemoryTaskManager implements TaskManager {
                 task.setTaskDescription(description);
                 task.setTaskStatus(TaskStatus.NEW);
                 // Добавление объекта (задачи) типа Task в HashMap listOfTasks:
-                listOfTasks.put(currentNumberOfTasks, task);
+                newTask(task);
                 taskHistory.add(task);
                 break;
             case ("2"):
@@ -98,7 +112,7 @@ public class InMemoryTaskManager implements TaskManager {
                 epic.setTaskDescription(description);
                 epic.setTaskStatus(TaskStatus.NEW);
                 // Добавление объекта (задачи) типа Task в HashMap listOfTasks:
-                listOfEpics.put(currentNumberOfTasks, epic);
+                newEpic(epic);
                 taskHistory.add(epic);
                 break;
             case ("3"):
@@ -138,7 +152,7 @@ public class InMemoryTaskManager implements TaskManager {
                         subTask.setTaskStatus(TaskStatus.NEW);
                         subTask.setNumberOfEpic(numberOfEpic);
                         // Добавление объекта (задачи) типа Task в HashMap listOfTasks:
-                        listOfSubTasks.put(currentNumberOfTasks, subTask);
+                        newSubTask(subTask);
                         taskHistory.add(subTask);
                         break;
                     } else {
