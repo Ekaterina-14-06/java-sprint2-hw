@@ -1,4 +1,5 @@
 package taskTracker.tasks;
+
 import taskTracker.manager.TaskStatus;
 
 public class Task {

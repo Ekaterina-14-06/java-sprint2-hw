@@ -1,13 +1,14 @@
 // Задание выполнила: Лядова Екатерина В.
-import taskTracker.manager.*;
 
+import taskTracker.manager.Managers;
+import taskTracker.manager.TaskManager;
+import taskTracker.manager.HistoryManager;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
         TaskManager taskManager = Managers.getDefault();
         HistoryManager historyManager = Managers.getDefaultHistory();
-        //InMemoryTaskManager manager = new InMemoryTaskManager();
         Scanner scanner = new Scanner(System.in);
         String choice;
         do {
@@ -19,7 +20,7 @@ public class Main {
                     "5 - очистить список задач\n" +
                     "6 - показать задачу\n" +
                     "7 - показать все задачи\n" +
-                    "8 - показать историю просмотра задач (10 последних)\n" +
+                    "8 - показать историю просмотра задач (5 последних)\n" +
                     "0 - выход из программы");
             choice = scanner.next();
             switch (choice) {
