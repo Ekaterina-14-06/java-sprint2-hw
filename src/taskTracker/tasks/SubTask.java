@@ -3,7 +3,10 @@ package taskTracker.tasks;
 public class SubTask extends Task {
     private Long numberOfEpic;
 
-    public SubTask() {}
+    public SubTask(Long taskId, String taskName, String taskDescription, TaskStatus taskStatus, Long numberOfEpic) {
+        super(taskId, taskName, taskDescription, taskStatus);
+        this.numberOfEpic = numberOfEpic;
+    }
 
     public Long getNumberOfEpic() {
         return numberOfEpic;
@@ -16,9 +19,7 @@ public class SubTask extends Task {
     // Переопределение метода toString класса Task: добавление вывода номера задачи типа Epic
     @Override
     public String toString() {
-        return "Имя задачи: " + getTaskName() + "\n" +
-                "Описание задачи: " + getTaskDescription() + "\n" +
-                "Статус задачи: " + getTaskStatus() + "\n" +
-                "Входит в состав задачи № " + numberOfEpic + " типа Epic.\n";
+        return super.toString() +
+               "Входит в состав задачи № " + numberOfEpic + " типа Epic.\n";
     }
 }

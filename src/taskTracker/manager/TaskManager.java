@@ -8,4 +8,5 @@ public interface TaskManager {
     void deleteAllTasks();
     void showOneTask();
     void showAllTasks();
+    void test();
 }

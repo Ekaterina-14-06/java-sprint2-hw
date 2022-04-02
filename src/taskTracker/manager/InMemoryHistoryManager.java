@@ -81,7 +81,9 @@ public class InMemoryHistoryManager implements HistoryManager {
         // Можно предусмотреть выбор отображения истории задач:
         // "от первой к последней" и "от последней к первой"
 
-        System.out.println("История просмотров:");
+        System.out.println("История вызова задач (последние " + MAX_COUNT_OF_TASKS_IN_HISTORY + " шт.):");
+        //List<Task> history = new ArrayList<>();
+        //history = getHistory();
         List<Task> history = getHistory();
         if (history.size() != 0) {
             for (Task task : history) {
@@ -94,7 +96,6 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     // --------------------------------------------------------
     // Метод getHistory возвращает упорядоченный список задач без повторов (историю)
-    @Override
     public List<Task> getHistory() {
         List<Task> history = new ArrayList<>();
         Node node = listHead.getNext();

@@ -1,14 +1,17 @@
 package taskTracker.tasks;
 
-import taskTracker.manager.TaskStatus;
-
 public class Task {
-    private Long taskId;
-    private String taskName;
-    private String taskDescription;
-    private TaskStatus taskStatus;
+    Long taskId;
+    String taskName;
+    String taskDescription;
+    TaskStatus taskStatus;
 
-    public Task() {}
+    public Task(Long taskId, String taskName, String taskDescription, TaskStatus taskStatus) {
+        this.taskId = taskId;
+        this.taskName = taskName;
+        this.taskDescription = taskDescription;
+        this.taskStatus = taskStatus;
+    }
 
     public Long getTaskId() {
         return taskId;
