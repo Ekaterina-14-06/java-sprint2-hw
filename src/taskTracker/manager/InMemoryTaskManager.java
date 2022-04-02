@@ -56,6 +56,57 @@ public class InMemoryTaskManager implements TaskManager {
         taskHistory.add(subTask);
     }
 
+    // Метод changeTask меняет значения параметров задачи на новые, полученные от пользователя
+    @Override
+    public void changeTask(Long taskId, String name, String description) {
+        if (mapOfTasks.containsKey(taskId)) {
+            mapOfTasks.get(taskId).setTaskName(name);
+            mapOfTasks.get(taskId).setTaskDescription(description);
+            taskHistory.add(mapOfTasks.get(taskId));
+        } else if (mapOfEpics.containsKey(taskId)) {
+            mapOfEpics.get(taskId).setTaskName(name);
+            mapOfEpics.get(taskId).setTaskDescription(description);
+            taskHistory.add(mapOfEpics.get(taskId));
+        } else if (mapOfSubTasks.containsKey(taskId)) {
+            mapOfSubTasks.get(taskId).setTaskName(name);
+            mapOfSubTasks.get(taskId).setTaskDescription(description);
+            taskHistory.add(mapOfSubTasks.get(taskId));
+        } else {
+            System.out.println("Такой задачи нет.");
+        }
+    }
+
+    // Метод changeStatus меняет статус (new, in progress, done) выбранной задачи
+    @Override
+    public void changeStatus(Long taskId, TaskStatus newTaskStatus) {
+        if (mapOfTasks.containsKey(taskId)) {
+            mapOfTasks.get(taskId).setTaskStatus(newTaskStatus);
+        } else if (mapOfEpics.containsKey(taskId)) {
+            System.out.println("Задачи типа Epic самостоятельно менять статус не могут.\n" +
+                    "Их состояние меняется автоматически при смене статусов её подзадач (SubTask).");
+        } else if (mapOfSubTasks.containsKey(taskId)) {
+            if (newTaskStatus == TaskStatus.IN_PROGRESS) {
+                mapOfSubTasks.get(taskId).setTaskStatus(TaskStatus.IN_PROGRESS);
+            } else if (newTaskStatus == TaskStatus.DONE) {
+                mapOfSubTasks.get(taskId).setTaskStatus(TaskStatus.DONE);
+                // Проверка остальных задач типа SubTask данной задачи типа Epic на соответствие состоянию done
+                Long numberOfEpic = mapOfSubTasks.get(taskId).getNumberOfEpic();
+                boolean isDone = false;
+                for (Long key : mapOfSubTasks.keySet()) {
+                    if (mapOfSubTasks.get(key).getNumberOfEpic().equals(numberOfEpic)) {
+                        isDone = mapOfSubTasks.get(key).getTaskStatus().equals(TaskStatus.DONE);
+                    }
+                }
+                if (isDone) {
+                    mapOfEpics.get(numberOfEpic).setTaskStatus(TaskStatus.DONE);
+                }
+            } else {
+                System.out.println("Вы ввели неверное значение.");
+            }
+            taskHistory.add(mapOfSubTasks.get(taskId));
+        }
+    }
+
     // Метод deleteTask удаляет задачу типа Task
     public void deleteTask(Long numberOfTask) {
         taskHistory.add(mapOfTasks.get(numberOfTask));
@@ -92,6 +143,14 @@ public class InMemoryTaskManager implements TaskManager {
         taskHistory.add(mapOfSubTasks.get(numberOfSubTask));
         mapOfSubTasks.remove(numberOfSubTask);
         listOfFreeNumber.add(numberOfSubTask);
+    }
+
+    // Метод deleteAllTasks удаляет все задачи
+    @Override
+    public void deleteAllTasks() {
+        mapOfTasks.clear();
+        mapOfEpics.clear();
+        mapOfSubTasks.clear();
     }
 
     // Метод showTask выводит на экран список задач типа Task
