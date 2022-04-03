@@ -1,10 +1,16 @@
 package taskTracker.tasks;
 
 public class Task {
+    // ----------------------------------------------------------------------------------------------------------------
+    // ОБЪЯВЛЕНИЕ ЛОКАЛЬНЫХ ПЕРЕМЕННЫХ ДАННОГО КЛАССА
+
     Long taskId;
     String taskName;
     String taskDescription;
     TaskStatus taskStatus;
+
+    // ----------------------------------------------------------------------------------------------------------------
+    // ОБЪЯВЛЕНИЕ КОНСТРУКТОРОВ ДАННОГО КЛАССА
 
     public Task(Long taskId, String taskName, String taskDescription, TaskStatus taskStatus) {
         this.taskId = taskId;
@@ -12,6 +18,15 @@ public class Task {
         this.taskDescription = taskDescription;
         this.taskStatus = taskStatus;
     }
+
+    public Task(String taskName, String taskDescription) {
+        this.taskName = taskName;
+        this.taskDescription = taskDescription;
+        this.taskStatus = TaskStatus.NEW;
+    }
+
+    // ----------------------------------------------------------------------------------------------------------------
+    // ОБЪЯВЛЕНИЕ МЕТОДОВ ДАННОГО КЛАССА
 
     public Long getTaskId() {
         return taskId;

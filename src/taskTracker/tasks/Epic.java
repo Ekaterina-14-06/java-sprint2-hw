@@ -3,18 +3,27 @@ package taskTracker.tasks;
 import java.util.HashMap;
 
 public class Epic extends Task {
+    // ----------------------------------------------------------------------------------------------------------------
+    // ОБЪЯВЛЕНИЕ ЛОКАЛЬНЫХ ПЕРЕМЕННЫХ ДАННОГО КЛАССА
+
     private HashMap<Integer, SubTask> mapOfSubTasks = new HashMap<>();
 
-    public Epic(Long taskId, String taskName, String taskDescription, TaskStatus taskStatus) {
-        super(taskId, taskName, taskDescription, taskStatus);
+    // ----------------------------------------------------------------------------------------------------------------
+    // ОБЪЯВЛЕНИЕ КОНСТРУКТОРОВ ДАННОГО КЛАССА
+
+    public Epic(String taskName, String taskDescription) {
+        super(taskName, taskDescription);
     }
 
-    public HashMap<Integer, SubTask> getListOfSubTasks() {
+    // ----------------------------------------------------------------------------------------------------------------
+    // ОБЪЯВЛЕНИЕ МЕТОДОВ ДАННОГО КЛАССА
+
+    public HashMap<Integer, SubTask> getMapOfSubTasks() {
         return mapOfSubTasks;
     }
 
-    public void setListOfSubTasks(HashMap<Integer, SubTask> listOfSubTasks) {
-        this.mapOfSubTasks = listOfSubTasks;
+    public void setMapOfSubTasks(HashMap<Integer, SubTask> mapOfSubTasks) {
+        this.mapOfSubTasks = mapOfSubTasks;
     }
 
     // Переопределение метода toString класса Task: добавление вывода номеров задач типа SubTask данной задачи

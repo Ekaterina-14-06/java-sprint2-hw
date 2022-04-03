@@ -5,43 +5,43 @@ import java.util.*;
 
 public class InMemoryHistoryManager implements HistoryManager {
     // ----------------------------------------------------------------------------------------------------------------
-    // Объявление локальных констант
-    static final int MAX_COUNT_OF_TASKS_IN_HISTORY = 5;
+    // ОБЪЯВЛЕНИЕ КОНСТАНТ ДАННОГО КЛАССА
+
+    static final int MAX_COUNT_OF_TASKS_IN_HISTORY = 10;
 
     // ----------------------------------------------------------------------------------------------------------------
-    // Объявление локальных переменных
+    // ОБЪЯВЛЕНИЕ ЛОКАЛЬНЫХ ПЕРЕМЕННЫХ ДАННОГО КЛАССА
 
-    // Таблица historyHashMap необходима для быстрого поиска соответствующей задачи (узла) в упорядоченном списке historyLinkedList.
-    // Её поля: Long - это taskID задачи, а Integer - это номер индекса (место в списке) узла списка historyLinkedList
+    // Таблица historyHashMap необходима для быстрого поиска соответствующей задачи - узла двунаправленного связанного списка.
+    // Её поля: Long - это taskID задачи, а Node - это ссылка на узел двунаправленного связанного списка.
     static Map<Long, Node> historyHashMap = new HashMap<>();
 
-    // listHead указывает на первый элемент (узел) двунаправленного связанного списка
+    // listHead указывает на первый узел двунаправленного связанного списка
     static Node listHead = new Node(null, null, null);
 
-    // listTail указывает на последний элемент (узел) двунаправленного связанного списка
+    // listTail указывает на последний узел двунаправленного связанного списка
     static Node listTail = new Node(null, null, null);
 
-    // listSize количество элементов (узлов) двунаправленного связанного списка
+    // listSize - количество узлов двунаправленного связанного списка
     static int listSize = 0;
 
     // ----------------------------------------------------------------------------------------------------------------
-    // Описание методов данного класса
+    // ОБЪЯВЛЕНИЕ МЕТОДОВ ДАННОГО КЛАССА
 
-    // Метод add добавляет просмотренную задачу в конец двунаправленного связанного списка historyLinkedList
+    // Метод add добавляет просмотренную задачу в конец двунаправленного связанного списка
     @Override
     public void add(Task task){
         Node node = new Node(null, null, task);
         if (listSize == 0) {
             listHead.setNext(node);
             listTail.setPrevious(node);
-            // Увеличение значения размера двунаправленного связанного списка
             ++listSize;
         } else {
-            // Добавление нового узла в конец historyLinkedList
+            // Добавление нового узла в конец двунаправленного связанного списка
             linkLast(node);
             // Проверка на повтор узла (наличие дублирования задач в истории задач)
             if (historyHashMap.containsKey(task.getTaskId())) {
-                // Удаление узла из historyLinkedList
+                // Удаление узла из двунаправленного связанного списка
                 remove(task.getTaskId());
             } else {
                 // Увеличение значения размера двунаправленного связанного списка
@@ -62,7 +62,7 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     // --------------------------------------------------------
-    // Метод remove удаляет узел из historyLinkedList
+    // Метод remove удаляет узел из двунаправленного связанного списка
     @Override
     public void remove(Long id) {
         Node previous = historyHashMap.get(id).getPrevious();
@@ -76,27 +76,8 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     // --------------------------------------------------------
-    // Метод history выводит на экран историю просмотров
+    // Метод getHistory возвращает упорядоченный список задач без повторов (историю вызова задач)
     @Override
-    public void history(){
-        // Можно предусмотреть выбор отображения истории задач:
-        // "от первой к последней" и "от последней к первой"
-
-        System.out.println("История вызова задач (последние " + MAX_COUNT_OF_TASKS_IN_HISTORY + " шт.):");
-        //List<Task> history = new ArrayList<>();
-        //history = getHistory();
-        List<Task> history = getHistory();
-        if (history.size() != 0) {
-            for (Task task : history) {
-                System.out.println(task.getTaskName());
-            }
-        } else {
-            System.out.println("Ни с одной задачей ещё не работали.");
-        }
-    }
-
-    // --------------------------------------------------------
-    // Метод getHistory возвращает упорядоченный список задач без повторов (историю)
     public List<Task> getHistory() {
         List<Task> history = new ArrayList<>();
         Node node = listHead.getNext();
@@ -110,9 +91,8 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     // --------------------------------------------------------
-    // Метод linkLast добавляет узел в конец historyLinkedList
+    // Метод linkLast добавляет новый узел в конец двунаправленного связанного списка
     public void linkLast(Node node) {
-        // Добавление нового узла в конец historyLinkedList
         node.setPrevious(listTail.getPrevious());
         listTail.getPrevious().setNext(node);
         listTail.setPrevious(node);

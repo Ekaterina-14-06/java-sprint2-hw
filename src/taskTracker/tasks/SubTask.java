@@ -1,12 +1,21 @@
 package taskTracker.tasks;
 
 public class SubTask extends Task {
+    // ----------------------------------------------------------------------------------------------------------------
+    // ОБЪЯВЛЕНИЕ ЛОКАЛЬНЫХ ПЕРЕМЕННЫХ ДАННОГО КЛАССА
+
     private Long numberOfEpic;
 
-    public SubTask(Long taskId, String taskName, String taskDescription, TaskStatus taskStatus, Long numberOfEpic) {
-        super(taskId, taskName, taskDescription, taskStatus);
+    // ----------------------------------------------------------------------------------------------------------------
+    // ОБЪЯВЛЕНИЕ КОНСТРУКТОРОВ ДАННОГО КЛАССА
+
+    public SubTask(String taskName, String taskDescription, Long numberOfEpic) {
+        super(taskName, taskDescription);
         this.numberOfEpic = numberOfEpic;
     }
+
+    // ----------------------------------------------------------------------------------------------------------------
+    // ОБЪЯВЛЕНИЕ МЕТОДОВ ДАННОГО КЛАССА
 
     public Long getNumberOfEpic() {
         return numberOfEpic;

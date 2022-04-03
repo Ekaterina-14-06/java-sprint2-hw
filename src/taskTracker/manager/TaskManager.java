@@ -1,12 +1,18 @@
 package taskTracker.manager;
 
-import taskTracker.tasks.Task;
-import taskTracker.tasks.TaskStatus;
+import taskTracker.tasks.*;
+import java.util.List;
 
 public interface TaskManager {
+    void newTask(Task task);
+    void newEpic(Epic epic);
+    void newSubTask(SubTask subTask);
     void changeTask(Long taskId, String name, String description);
     void changeStatus(Long taskId, TaskStatus newTaskStatus);
+    void deleteTask(Long taskId);
     void deleteAllTasks();
+    void showTask(Long taskId);
     void showAllTasks();
-    void test();
+    List<Task> history();
+    Task getTaskById(Long taskId);
 }
