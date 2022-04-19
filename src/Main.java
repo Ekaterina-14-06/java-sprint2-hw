@@ -7,8 +7,11 @@ import taskTracker.tasks.*;
 
 public class Main {
     public static void main(String[] args) {
-        TaskManager taskManager = Managers.getDefault();
+        //TaskManager taskManager = Managers.getDefault();
+        TaskManager taskManager = Managers.getFileBackedTasksManager();
         HistoryManager historyManager = Managers.getDefaultHistory();
+
+        taskManager.loadFromFile();
 
         System.out.println("\nТЕСТИРОВАНИЕ РАБОТЫ ПРОГРАММЫ\n");
 

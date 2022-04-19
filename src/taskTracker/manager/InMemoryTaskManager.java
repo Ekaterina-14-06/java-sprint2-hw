@@ -11,13 +11,13 @@ public class InMemoryTaskManager implements TaskManager {
     // ОБЪЯВЛЕНИЕ ЛОКАЛЬНЫХ ПЕРЕМЕННЫХ ДАННОГО КЛАССА
 
     // mapOfTasks - список задач типа Task
-    private final HashMap<Long, Task> mapOfTasks = new HashMap<>();
+    public final HashMap<Long, Task> mapOfTasks = new HashMap<>();
 
     // mapOfEpics - список задач типа Epic
-    private final HashMap<Long, Epic> mapOfEpics = new HashMap<>();
+    public final HashMap<Long, Epic> mapOfEpics = new HashMap<>();
 
     // mapOfSubTasks - список задач типа SubTask
-    private final HashMap<Long, SubTask> mapOfSubTasks = new HashMap<>();
+    public final HashMap<Long, SubTask> mapOfSubTasks = new HashMap<>();
 
     // countOfTasks содержит номер последней созданной задачи
     long countOfTasks = 0;
@@ -227,5 +227,10 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public List<Task> history() {
         return taskHistory.getHistory();
+    }
+
+    @Override
+    public void loadFromFile(){
+
     }
 }

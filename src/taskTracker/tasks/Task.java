@@ -1,5 +1,7 @@
 package taskTracker.tasks;
 
+import taskTracker.manager.TaskTipe;
+
 public class Task {
     // ----------------------------------------------------------------------------------------------------------------
     // ОБЪЯВЛЕНИЕ ЛОКАЛЬНЫХ ПЕРЕМЕННЫХ ДАННОГО КЛАССА
@@ -11,6 +13,10 @@ public class Task {
 
     // ----------------------------------------------------------------------------------------------------------------
     // ОБЪЯВЛЕНИЕ КОНСТРУКТОРОВ ДАННОГО КЛАССА
+
+    public Task() {
+
+    }
 
     public Task(Long taskId, String taskName, String taskDescription, TaskStatus taskStatus) {
         this.taskId = taskId;

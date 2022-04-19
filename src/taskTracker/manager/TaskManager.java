@@ -15,4 +15,5 @@ public interface TaskManager {
     void showAllTasks();
     List<Task> history();
     Task getTaskById(Long taskId);
+    public void loadFromFile();
 }
