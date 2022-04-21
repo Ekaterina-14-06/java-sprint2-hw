@@ -2,14 +2,12 @@
 
 import taskTracker.manager.Managers;
 import taskTracker.manager.TaskManager;
-import taskTracker.manager.HistoryManager;
 import taskTracker.tasks.*;
 
 public class Main {
     public static void main(String[] args) {
         //TaskManager taskManager = Managers.getDefault();
         TaskManager taskManager = Managers.getFileBackedTasksManager();
-        HistoryManager historyManager = Managers.getDefaultHistory();
 
         taskManager.loadFromFile();
 
@@ -30,17 +28,17 @@ public class Main {
         System.out.println("4) Создание задачи № 4 типа SubTask для задачи № 3 типа Epic.");
         taskManager.newSubTask(new SubTask("Задача № 4",
                                            "Описание задачи № 4 типа SubTask для задачи № 3 типа Epic",
-                                           3L));
+                                           3L, TaskStatus.NEW));
 
         System.out.println("5) Создание задачи № 5 типа SubTask для задачи № 3 типа Epic.");
         taskManager.newSubTask(new SubTask("Задача № 5",
                                            "Описание задачи № 5 типа SubTask для задачи № 3 типа Epic",
-                                           3L));
+                                           3L, TaskStatus.NEW));
 
         System.out.println("6) Создание задачи № 6 типа SubTask для задачи № 3 типа Epic.");
         taskManager.newSubTask(new SubTask("Задача № 6",
                                            "Описание задачи № 4 типа SubTask для задачи № 3 типа Epic",
-                                           3L));
+                                           3L, TaskStatus.NEW));
 
         System.out.println("7) Создание задачи № 7 типа Epic.");
         taskManager.newEpic(new Epic("Задача № 7",
@@ -86,13 +84,13 @@ public class Main {
         System.out.println(taskManager.history());
 
         System.out.println("\n21) Удаление задачи № 2.");
-        taskManager.deleteTask(2L);
+        taskManager.deleteTaskById(2L);
 
         System.out.println("\n22) Вывод на экран всех задач:");
         taskManager.showAllTasks();
 
         System.out.println("\n23) Удаление задачи № 3.");
-        taskManager.deleteTask(3L);
+        taskManager.deleteEpicById(3L);
 
         System.out.println("\n24) Вывод на экран всех задач:");
         taskManager.showAllTasks();

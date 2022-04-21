@@ -1,0 +1,5 @@
+id,type,name,status,description,epic
+1,TASK,Задача № 1,NEW,Описание задачи № 1 типа Task,
+7,EPIC,Задача № 7,NEW,Описание задачи № 7 типа Epic,
+
+6,1,2,3

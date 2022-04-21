@@ -13,7 +13,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     public static void main(String[] args) {
         //TaskManager taskManager = Managers.getDefault();
         TaskManager taskManager = Managers.getFileBackedTasksManager();
-        HistoryManager historyManager = Managers.getDefaultHistory();
 
         taskManager.loadFromFile();
 
@@ -34,17 +33,17 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         System.out.println("4) Создание задачи № 4 типа SubTask для задачи № 3 типа Epic.");
         taskManager.newSubTask(new SubTask("Задача № 4",
                 "Описание задачи № 4 типа SubTask для задачи № 3 типа Epic",
-                3L));
+                3L, TaskStatus.NEW));
 
         System.out.println("5) Создание задачи № 5 типа SubTask для задачи № 3 типа Epic.");
         taskManager.newSubTask(new SubTask("Задача № 5",
                 "Описание задачи № 5 типа SubTask для задачи № 3 типа Epic",
-                3L));
+                3L, TaskStatus.NEW));
 
         System.out.println("6) Создание задачи № 6 типа SubTask для задачи № 3 типа Epic.");
         taskManager.newSubTask(new SubTask("Задача № 6",
                 "Описание задачи № 4 типа SubTask для задачи № 3 типа Epic",
-                3L));
+                3L, TaskStatus.NEW));
 
         System.out.println("7) Создание задачи № 7 типа Epic.");
         taskManager.newEpic(new Epic("Задача № 7",
@@ -90,13 +89,13 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         System.out.println(taskManager.history());
 
         System.out.println("\n21) Удаление задачи № 2.");
-        taskManager.deleteTask(2L);
+        taskManager.deleteTaskById(2L);
 
         System.out.println("\n22) Вывод на экран всех задач:");
         taskManager.showAllTasks();
 
         System.out.println("\n23) Удаление задачи № 3.");
-        taskManager.deleteTask(3L);
+        taskManager.deleteEpicById(3L);
 
         System.out.println("\n24) Вывод на экран всех задач:");
         taskManager.showAllTasks();
@@ -134,20 +133,39 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void changeTask(Long taskId, String name, String description) {
-        super.changeTask(taskId, name, description);
+    public void updateTask(Long taskId, Task task) {
+        super.updateTask(taskId,task);
+        save();
+    }
+
+    public void updateEpic (Long taskId, Epic epic) {
+        super.updateEpic(taskId, epic);
         save();
     }
 
     @Override
-    public void changeStatus(Long taskId, TaskStatus newTaskStatus) {
-        super.changeStatus(taskId, newTaskStatus);
+    public void updateSubtask(Long taskId, SubTask subTask) {
+        super.updateSubtask(taskId, subTask);
         save();
     }
 
     @Override
-    public void deleteTask(Long taskId) {
-        super.deleteTask(taskId);
+    public void deleteTaskById(Long taskId) {
+        super.deleteTaskById(taskId);
+        save();
+    }
+
+    // Метод deleteEpicById удаляет задачу типа Epic
+    @Override
+    public void deleteEpicById(Long taskId) {
+        super.deleteEpicById(taskId);
+        save();
+    }
+
+    // Метод deleteSubTaskById удаляет задачу типа SubTask
+    @Override
+    public void deleteSubTaskById(Long taskId) {
+        super.deleteSubTaskById(taskId);
         save();
     }
 
@@ -192,18 +210,22 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         }
 
         try {
+            File file = new File(fileName);
+            if (!file.exists()) {
+                throw new MyFileNotFoungException("Ошибка! Файл не найден.");
+            }
             BufferedWriter bw = new BufferedWriter(
                                 new FileWriter(fileName));
             String result = "";
             result = "id,type,name,status,description,epic\n";
-            for (Long key : mapOfTasks.keySet()) {
-                result = result + toString(mapOfTasks.get(key));
+            for (Long key : tasks.keySet()) {
+                result = result + toString(tasks.get(key));
             }
-            for (Long key : mapOfEpics.keySet()) {
-                result = result + toString(mapOfEpics.get(key));
+            for (Long key : epics.keySet()) {
+                result = result + toString(epics.get(key));
             }
-            for (Long key : mapOfSubTasks.keySet()) {
-                result = result + toString(mapOfSubTasks.get(key));
+            for (Long key : subTasks.keySet()) {
+                result = result + toString(subTasks.get(key));
             }
 
             result = result + "\n";
@@ -218,18 +240,20 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
             bw.write(result);
             bw.close();
-        } catch (IOException e) {
+        } catch (MyFileNotFoungException e) {
+            System.out.println(e.getMessage());
+        }catch (IOException e) {
             System.out.println("Ошибка! Файл не найден.");
         }
     }
 
     // Метод сохранения задачи (любого типа) в строку
     public String toString(Task task) {
-        if (mapOfTasks.containsKey(task.getTaskId())) {
+        if (tasks.containsKey(task.getTaskId())) {
             return taskToString(task);
-        } else if (mapOfEpics.containsKey(task.getTaskId())) {
+        } else if (epics.containsKey(task.getTaskId())) {
             return epicToString(task);
-        } else if (mapOfSubTasks.containsKey(task.getTaskId())) {
+        } else if (subTasks.containsKey(task.getTaskId())) {
             return subTaskToString(task);
         } else {
             System.out.println("Ошибка! Задача неизвестного типа.");
@@ -262,7 +286,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 task.getTaskName() + "," +
                 task.getTaskStatus() + "," +
                 task.getTaskDescription() + "," +
-                mapOfSubTasks.get(task.getTaskId()).getNumberOfEpic() + "\n";
+                subTasks.get(task.getTaskId()).getNumberOfEpic() + "\n";
     }
 
     // Метод создания задачи типа Task из строки
@@ -286,7 +310,24 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     // Метод создания задачи типа SubTask из строки
     public SubTask subTaskFromString(String value) {
         String[] split = value.split(",");
-        SubTask subTask = new SubTask(split[2], split[4], Long.parseLong(split[5]));
+
+        // преобразование типа enum в String
+        TaskStatus taskStatus;
+        switch (split[3]){
+            case "NEW":
+                taskStatus = TaskStatus.NEW;
+                break;
+            case "IN_PROGRESS" :
+                taskStatus = TaskStatus.IN_PROGRESS;
+                break;
+            case "DONE" :
+                taskStatus = TaskStatus.DONE;
+                break;
+            default:
+                taskStatus = TaskStatus.NEW;
+        }
+
+        SubTask subTask = new SubTask(split[2], split[4], Long.parseLong(split[5]), taskStatus);
         subTask.setTaskId(Long.parseLong(split[0]));
         subTask.setTaskStatus(TaskStatus.valueOf(split[3]));
         return subTask;
@@ -316,11 +357,11 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
                 String[] split = str.split(",");
                 if (split[1].equals("TASK")) {
-                    mapOfTasks.put(taskFromString(str).getTaskId(), taskFromString(str));
+                    tasks.put(taskFromString(str).getTaskId(), taskFromString(str));
                 } else if (split[1].equals("EPIC")) {
-                    mapOfEpics.put(epicFromString(str).getTaskId(), epicFromString(str));
+                    epics.put(epicFromString(str).getTaskId(), epicFromString(str));
                 } else if (split[1].equals("SUB_TASK")) {
-                    mapOfSubTasks.put(subTaskFromString(str).getTaskId(), subTaskFromString(str));
+                    subTasks.put(subTaskFromString(str).getTaskId(), subTaskFromString(str));
                 }
             }
             br.close();

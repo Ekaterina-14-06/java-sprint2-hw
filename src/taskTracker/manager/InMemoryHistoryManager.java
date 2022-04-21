@@ -15,6 +15,10 @@ public class InMemoryHistoryManager implements HistoryManager {
     // Таблица historyHashMap необходима для быстрого поиска соответствующей задачи - узла двунаправленного связанного списка.
     // Её поля: Long - это taskID задачи, а Node - это ссылка на узел двунаправленного связанного списка.
     static Map<Long, Node> historyHashMap = new HashMap<>();
+    @Override
+    public void setListHead(Node listHead) {
+        this.listHead = listHead;
+    }
 
     // listHead указывает на первый узел двунаправленного связанного списка
     static Node listHead = new Node(null, null, null);

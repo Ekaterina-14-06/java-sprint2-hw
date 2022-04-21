@@ -9,9 +9,10 @@ public class SubTask extends Task {
     // ----------------------------------------------------------------------------------------------------------------
     // ОБЪЯВЛЕНИЕ КОНСТРУКТОРОВ ДАННОГО КЛАССА
 
-    public SubTask(String taskName, String taskDescription, Long numberOfEpic) {
+    public SubTask(String taskName, String taskDescription, Long numberOfEpic, TaskStatus taskStatus) {
         super(taskName, taskDescription);
         this.numberOfEpic = numberOfEpic;
+        this.taskStatus = taskStatus;
     }
 
     // ----------------------------------------------------------------------------------------------------------------

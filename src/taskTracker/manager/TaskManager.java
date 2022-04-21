@@ -7,13 +7,18 @@ public interface TaskManager {
     void newTask(Task task);
     void newEpic(Epic epic);
     void newSubTask(SubTask subTask);
-    void changeTask(Long taskId, String name, String description);
-    void changeStatus(Long taskId, TaskStatus newTaskStatus);
-    void deleteTask(Long taskId);
+    void deleteTaskById(Long taskId);
+    void deleteEpicById(Long taskId);
+    void deleteSubTaskById(Long taskId);
     void deleteAllTasks();
     void showTask(Long taskId);
     void showAllTasks();
     List<Task> history();
-    Task getTaskById(Long taskId);
-    public void loadFromFile();
+    void loadFromFile();
+    Task getTaskById (Long taskId);
+    Epic getEpicById (Long taskId);
+    SubTask getSubTaskById (Long taskId);
+    void updateTask(Long taskId, Task task);
+    void updateEpic (Long taskId, Epic epic);
+    void updateSubtask(Long taskId, SubTask subTask);
 }

@@ -25,6 +25,12 @@ public class Task {
         this.taskStatus = taskStatus;
     }
 
+    public Task(Long taskId, String taskName, String taskDescription) {
+        this.taskId = taskId;
+        this.taskName = taskName;
+        this.taskDescription = taskDescription;
+    }
+
     public Task(String taskName, String taskDescription) {
         this.taskName = taskName;
         this.taskDescription = taskDescription;
