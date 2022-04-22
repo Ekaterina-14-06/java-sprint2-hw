@@ -71,6 +71,11 @@ public class InMemoryHistoryManager implements HistoryManager {
     public void remove(Long id) {
         Node previous = historyHashMap.get(id).getPrevious();
         Node next = historyHashMap.get(id).getNext();
+
+        if (next == null) {
+            listTail.setPrevious(previous);
+        }
+
         if (previous != null) {
             previous.setNext(next);
         } else {
@@ -100,5 +105,15 @@ public class InMemoryHistoryManager implements HistoryManager {
         node.setPrevious(listTail.getPrevious());
         listTail.getPrevious().setNext(node);
         listTail.setPrevious(node);
+    }
+
+    @Override
+    public void clearHistory() {
+        for (Long key : historyHashMap.keySet()) {
+            remove(key);
+        }
+        historyHashMap.clear();
+        listHead = new Node(null, null, null);
+        listTail = new Node(null, null, null);
     }
 }

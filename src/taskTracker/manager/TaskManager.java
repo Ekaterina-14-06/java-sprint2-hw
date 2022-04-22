@@ -14,11 +14,11 @@ public interface TaskManager {
     void showTask(Long taskId);
     void showAllTasks();
     List<Task> history();
-    void loadFromFile();
+    //void loadFromFile();
     Task getTaskById (Long taskId);
     Epic getEpicById (Long taskId);
     SubTask getSubTaskById (Long taskId);
-    void updateTask(Long taskId, Task task);
-    void updateEpic (Long taskId, Epic epic);
-    void updateSubtask(Long taskId, SubTask subTask);
+    void updateTask(Task task);
+    void updateEpic (Epic epic);
+    void updateSubtask(SubTask subTask);
 }

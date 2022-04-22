@@ -11,13 +11,13 @@ public class InMemoryTaskManager implements TaskManager {
     // ОБЪЯВЛЕНИЕ ЛОКАЛЬНЫХ ПЕРЕМЕННЫХ ДАННОГО КЛАССА
 
     // mapOfTasks - список задач типа Task
-    protected final HashMap<Long, Task> tasks = new HashMap<>();
+    protected static final HashMap<Long, Task> tasks = new HashMap<>();
 
     // mapOfEpics - список задач типа Epic
-    protected final HashMap<Long, Epic> epics = new HashMap<>();
+    protected static final HashMap<Long, Epic> epics = new HashMap<>();
 
     // mapOfSubTasks - список задач типа SubTask
-    protected final HashMap<Long, SubTask> subTasks = new HashMap<>();
+    protected static final HashMap<Long, SubTask> subTasks = new HashMap<>();
 
     // countOfTasks содержит номер последней созданной задачи
     protected long countOfTasks = 0;
@@ -66,14 +66,8 @@ public class InMemoryTaskManager implements TaskManager {
     // Метод newSubTask создаёт новую задачу типа SubTask
     @Override
     public void newSubTask(SubTask subTask) {
-        boolean flag = false;
-        for (Long key : epics.keySet()) {
-            if (epics.get(key).getTaskId() == subTask.getNumberOfEpic()) {
-                flag = true;
-                break;
-            }
-        } if (flag) {
-
+        Epic epic = epics.get(subTask.getNumberOfEpic());
+        if (epic != null) {
             if (listOfFreeNumber.isEmpty()) {
                 subTask.setTaskId(++countOfTasks);
             } else {
@@ -81,6 +75,8 @@ public class InMemoryTaskManager implements TaskManager {
                 listOfFreeNumber.remove(0);
             }
             subTasks.put(subTask.getTaskId(), subTask);
+            epic.setTaskStatus(TaskStatus.IN_PROGRESS);
+            epic.getMapOfSubTasks().put(subTask.getTaskId(), subTask);
             // taskHistory.add(subTask);
         } else {
             System.out.println("Ошибка. Не существует эпик, для которого создается сабтаск. Сабтаск не создан");
@@ -104,6 +100,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
         return epic;
     }
+
     @Override
     public SubTask getSubTaskById (Long taskId) {
         SubTask subTask = subTasks.get(taskId);
@@ -114,82 +111,48 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    //public void updateTask(Long taskId, String name, String description, TaskStatus newTaskStatus) {
-    public void updateTask(Long taskId, Task task) {
-        if (getTaskById(taskId) == null) {
+    public void updateTask(Task task) {
+        if (getTaskById(task.getTaskId()) == null) {
             System.out.println("Такой задачи нет.");
             return;
         }
 
-        if (taskId != task.getTaskId()) {
-            if (tasks.containsKey(task.getTaskId()) ||
-                epics.containsKey(task.getTaskId()) ||
-                subTasks.containsKey(task.getTaskId())) {
-                System.out.println("Ошибка! Задача с таким taskId уже существует. Операция обновления не произведена");
-                return;
-            } else {
-                getTaskById(taskId).setTaskId(task.getTaskId());
-            }
-        }
-
-        getTaskById(taskId).setTaskName(task.getTaskName());
-        getTaskById(taskId).setTaskDescription(task.getTaskDescription());
-        getTaskById(taskId).setTaskStatus(task.getTaskStatus());
-        taskHistory.add(getTaskById(taskId));
+        getTaskById(task.getTaskId()).setTaskName(task.getTaskName());
+        getTaskById(task.getTaskId()).setTaskDescription(task.getTaskDescription());
+        getTaskById(task.getTaskId()).setTaskStatus(task.getTaskStatus());
+        taskHistory.add(getTaskById(task.getTaskId()));
     }
 
-    public void updateEpic (Long taskId, Epic epic) {
-        if (getEpicById(taskId) == null) {
+    public void updateEpic (Epic epic) {
+        if (getEpicById(epic.getTaskId()) == null) {
             System.out.println("Такой задачи нет.");
             return;
         }
 
-        if (taskId != epic.getTaskId()) {
-            if (tasks.containsKey(epic.getTaskId()) ||
-                epics.containsKey(epic.getTaskId()) ||
-                subTasks.containsKey(epic.getTaskId())) {
-                System.out.println("Ошибка! Задача с таким taskId уже существует. Операция обновления не произведена");
-                return;
-            } else {
-                getTaskById(taskId).setTaskId(epic.getTaskId());
-            }
-        }
+        getEpicById(epic.getTaskId()).setTaskName(epic.getTaskName());
+        getEpicById(epic.getTaskId()).setTaskDescription(epic.getTaskDescription());
 
-        getEpicById(taskId).setTaskName(epic.getTaskName());
-        getEpicById(taskId).setTaskDescription(epic.getTaskDescription());
-
-        if (getEpicById(taskId).getTaskStatus() != epic.getTaskStatus()) {
+        if (getEpicById(epic.getTaskId()).getTaskStatus() != epic.getTaskStatus()) {
             System.out.println("Задачи типа Epic самостоятельно менять статус не могут.\n" +
                     "Их состояние меняется автоматически при смене статусов её подзадач (SubTask).");
         }
 
-        taskHistory.add(getEpicById(taskId));
+        taskHistory.add(getEpicById(epic.getTaskId()));
     }
 
-    public void updateSubtask(Long taskId, SubTask subTask) {
-        if (getSubTaskById(taskId) == null) {
+    public void updateSubtask(SubTask subTask) {
+        if (getSubTaskById(subTask.getTaskId()) == null) {
             System.out.println("Такой задачи нет.");
             return;
         }
 
-        if (taskId != subTask.getTaskId()) {
-            if (tasks.containsKey(subTask.getTaskId()) ||
-                    epics.containsKey(subTask.getTaskId()) ||
-                    subTasks.containsKey(subTask.getTaskId())) {
-                System.out.println("Ошибка! Задача с таким taskId уже существует. Операция обновления не произведена");
-                return;
-            } else {
-                getTaskById(taskId).setTaskId(subTask.getTaskId());
-            }
-        }
-
-        getSubTaskById(taskId).setTaskName(subTask.getTaskName());
-        getSubTaskById(taskId).setTaskDescription(subTask.getTaskDescription());
-        getSubTaskById(taskId).setTaskStatus(subTask.getTaskStatus());
+        getSubTaskById(subTask.getTaskId()).setTaskName(subTask.getTaskName());
+        getSubTaskById(subTask.getTaskId()).setTaskDescription(subTask.getTaskDescription());
+        getSubTaskById(subTask.getTaskId()).setTaskStatus(subTask.getTaskStatus());
 
         // Проверка остальных задач типа SubTask данной задачи типа Epic на соответствие состоянию DONE
-        if (getSubTaskById(taskId).getTaskStatus() == TaskStatus.DONE) {
-            Long numberOfEpic = subTasks.get(taskId).getNumberOfEpic();
+        if (getSubTaskById(subTask.getTaskId()).getTaskStatus() == TaskStatus.DONE) {
+            Long numberOfEpic = subTasks.get(subTask.getTaskId()).getNumberOfEpic();
             boolean isDone = false;
             boolean singleSubTaskIsDone = false;
             for (Long key : subTasks.keySet()) {
@@ -206,7 +169,7 @@ public class InMemoryTaskManager implements TaskManager {
             }
         }
 
-        taskHistory.add(getSubTaskById(taskId));
+        taskHistory.add(getSubTaskById(subTask.getTaskId()));
     }
 
     // Метод deleteTaskById удаляет задачу типа Task
@@ -222,20 +185,10 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteEpicById(Long taskId) {
         taskHistory.add(getEpicById(taskId));
         // Удаление подзадач типа SubTask, относящихся к выбранной задаче типа Epic
-        boolean flag;
-        do {
-           Set<Long> keys = subTasks.keySet();
-           if (keys.isEmpty()) break;
-           flag = false;
-           for (Long key : keys) {
-               if (subTasks.get(key).getNumberOfEpic().equals(taskId)) {
-                   subTasks.remove(key);
-                   listOfFreeNumber.add(key);
-                   flag = true;
-                   break;
-               }
-            }
-        } while (flag);
+        for (Long key : getEpicById(taskId).getMapOfSubTasks().keySet()) {
+            subTasks.remove(key);
+        }
+        getEpicById(taskId).getMapOfSubTasks().clear();
         epics.remove(taskId);
         listOfFreeNumber.add(taskId);
     }
@@ -246,15 +199,16 @@ public class InMemoryTaskManager implements TaskManager {
         taskHistory.add(getSubTaskById(taskId));
         subTasks.remove(taskId);
         listOfFreeNumber.add(taskId);
+        epics.get(getSubTaskById(taskId).getNumberOfEpic()).getMapOfSubTasks().remove(taskId);
     }
 
-    // Метод deleteAllTasks удаляет все задачи
+    // Метод deleteAllTasks удаляет все задачи и очищает историю
     @Override
     public void deleteAllTasks() {
         tasks.clear();
         epics.clear();
         subTasks.clear();
-        taskHistory.setListHead(null);
+        taskHistory.clearHistory();
     }
 
     // Метод showTask выводит на экран список задач любого типа (Task, Epic, SubTask)
@@ -324,10 +278,5 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public List<Task> history() {
         return taskHistory.getHistory();
-    }
-
-    @Override
-    public void loadFromFile(){
-
     }
 }

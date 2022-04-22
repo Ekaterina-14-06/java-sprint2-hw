@@ -6,7 +6,7 @@ public class Epic extends Task {
     // ----------------------------------------------------------------------------------------------------------------
     // ОБЪЯВЛЕНИЕ ЛОКАЛЬНЫХ ПЕРЕМЕННЫХ ДАННОГО КЛАССА
 
-    private HashMap<Integer, SubTask> mapOfSubTasks = new HashMap<>();
+    private HashMap<Long, SubTask> mapOfSubTasks = new HashMap<>();
 
     // ----------------------------------------------------------------------------------------------------------------
     // ОБЪЯВЛЕНИЕ КОНСТРУКТОРОВ ДАННОГО КЛАССА
@@ -18,11 +18,11 @@ public class Epic extends Task {
     // ----------------------------------------------------------------------------------------------------------------
     // ОБЪЯВЛЕНИЕ МЕТОДОВ ДАННОГО КЛАССА
 
-    public HashMap<Integer, SubTask> getMapOfSubTasks() {
+    public HashMap<Long, SubTask> getMapOfSubTasks() {
         return mapOfSubTasks;
     }
 
-    public void setMapOfSubTasks(HashMap<Integer, SubTask> mapOfSubTasks) {
+    public void setMapOfSubTasks(HashMap<Long, SubTask> mapOfSubTasks) {
         this.mapOfSubTasks = mapOfSubTasks;
     }
 
@@ -30,7 +30,7 @@ public class Epic extends Task {
     @Override
     public String toString() {
         String result = "";
-        for (int subTaskKey : mapOfSubTasks.keySet()) {
+        for (long subTaskKey : mapOfSubTasks.keySet()) {
             result = result + mapOfSubTasks.get(subTaskKey).getTaskId() + ", ";
         }
         return super.toString() +

@@ -8,4 +8,5 @@ public interface HistoryManager {
     void remove(Long id);
     List<Task> getHistory();
     void setListHead(Node listHead);
+    void clearHistory();
 }

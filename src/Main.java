@@ -9,8 +9,6 @@ public class Main {
         //TaskManager taskManager = Managers.getDefault();
         TaskManager taskManager = Managers.getFileBackedTasksManager();
 
-        taskManager.loadFromFile();
-
         System.out.println("\nТЕСТИРОВАНИЕ РАБОТЫ ПРОГРАММЫ\n");
 
         System.out.println("1) Создание задачи № 1 типа Task.");
