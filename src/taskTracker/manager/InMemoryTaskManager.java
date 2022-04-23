@@ -4,7 +4,6 @@ import taskTracker.tasks.*;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Set;
 
 public class InMemoryTaskManager implements TaskManager {
     // ----------------------------------------------------------------------------------------------------------------
@@ -47,7 +46,6 @@ public class InMemoryTaskManager implements TaskManager {
             listOfFreeNumber.remove(0);
         }
         tasks.put(task.getTaskId(), task);
-        //taskHistory.add(task);
     }
 
     // Метод newEpic создаёт новую задачу типа Epic
@@ -60,7 +58,6 @@ public class InMemoryTaskManager implements TaskManager {
             listOfFreeNumber.remove(0);
         }
         epics.put(epic.getTaskId(), epic);
-       // taskHistory.add(epic);
     }
 
     // Метод newSubTask создаёт новую задачу типа SubTask
@@ -75,9 +72,8 @@ public class InMemoryTaskManager implements TaskManager {
                 listOfFreeNumber.remove(0);
             }
             subTasks.put(subTask.getTaskId(), subTask);
-            epic.setTaskStatus(TaskStatus.IN_PROGRESS);
             epic.getMapOfSubTasks().put(subTask.getTaskId(), subTask);
-            // taskHistory.add(subTask);
+            updateTaskStatusOfEpic(epic);
         } else {
             System.out.println("Ошибка. Не существует эпик, для которого создается сабтаск. Сабтаск не создан");
         }
@@ -112,70 +108,55 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateTask(Task task) {
-        if (getTaskById(task.getTaskId()) == null) {
+        Task updatableTask = getTaskById(task.getTaskId());
+        if (updatableTask == null) {
             System.out.println("Такой задачи нет.");
             return;
         }
-
-        getTaskById(task.getTaskId()).setTaskName(task.getTaskName());
-        getTaskById(task.getTaskId()).setTaskDescription(task.getTaskDescription());
-        getTaskById(task.getTaskId()).setTaskStatus(task.getTaskStatus());
-        taskHistory.add(getTaskById(task.getTaskId()));
+        updatableTask.setTaskName(task.getTaskName());
+        updatableTask.setTaskDescription(task.getTaskDescription());
+        updatableTask.setTaskStatus(task.getTaskStatus());
+        taskHistory.add(updatableTask);
     }
 
     public void updateEpic (Epic epic) {
-        if (getEpicById(epic.getTaskId()) == null) {
+        Epic updatableEpic = getEpicById(epic.getTaskId());
+        if (updatableEpic == null) {
             System.out.println("Такой задачи нет.");
             return;
         }
 
-        getEpicById(epic.getTaskId()).setTaskName(epic.getTaskName());
-        getEpicById(epic.getTaskId()).setTaskDescription(epic.getTaskDescription());
+        updatableEpic.setTaskName(epic.getTaskName());
+        updatableEpic.setTaskDescription(epic.getTaskDescription());
 
-        if (getEpicById(epic.getTaskId()).getTaskStatus() != epic.getTaskStatus()) {
+        if (updatableEpic.getTaskStatus() != epic.getTaskStatus()) {
             System.out.println("Задачи типа Epic самостоятельно менять статус не могут.\n" +
                     "Их состояние меняется автоматически при смене статусов её подзадач (SubTask).");
         }
 
-        taskHistory.add(getEpicById(epic.getTaskId()));
+        taskHistory.add(updatableEpic);
     }
 
     public void updateSubtask(SubTask subTask) {
-        if (getSubTaskById(subTask.getTaskId()) == null) {
+        SubTask updatableSubTask = getSubTaskById(subTask.getTaskId());
+        if (updatableSubTask == null) {
             System.out.println("Такой задачи нет.");
             return;
         }
 
-        getSubTaskById(subTask.getTaskId()).setTaskName(subTask.getTaskName());
-        getSubTaskById(subTask.getTaskId()).setTaskDescription(subTask.getTaskDescription());
-        getSubTaskById(subTask.getTaskId()).setTaskStatus(subTask.getTaskStatus());
-
-        // Проверка остальных задач типа SubTask данной задачи типа Epic на соответствие состоянию DONE
-        if (getSubTaskById(subTask.getTaskId()).getTaskStatus() == TaskStatus.DONE) {
-            Long numberOfEpic = subTasks.get(subTask.getTaskId()).getNumberOfEpic();
-            boolean isDone = false;
-            boolean singleSubTaskIsDone = false;
-            for (Long key : subTasks.keySet()) {
-                if (subTasks.get(key).getNumberOfEpic().equals(numberOfEpic)) {
-                    singleSubTaskIsDone = true;
-                    isDone = subTasks.get(key).getTaskStatus().equals(TaskStatus.DONE);
-                    if (!isDone) break;
-                }
-            }
-            if (singleSubTaskIsDone) {
-                epics.get(numberOfEpic).setTaskStatus(TaskStatus.DONE);
-            } else if (isDone) {
-                epics.get(numberOfEpic).setTaskStatus(TaskStatus.DONE);
-            }
-        }
-
-        taskHistory.add(getSubTaskById(subTask.getTaskId()));
+        updatableSubTask.setTaskName(subTask.getTaskName());
+        updatableSubTask.setTaskDescription(subTask.getTaskDescription());
+        updatableSubTask.setTaskStatus(subTask.getTaskStatus());
+        updateTaskStatusOfEpic(epics.get(updatableSubTask.getNumberOfEpic()));
+        //taskHistory.add(updatableSubTask);
     }
 
     // Метод deleteTaskById удаляет задачу типа Task
     @Override
     public void deleteTaskById(Long taskId) {
-        taskHistory.add(getTaskById(taskId));
+        taskHistory.remove(taskId);
+        taskHistory.getHistoryHashMap().remove(taskId);
+
         tasks.remove(taskId);
         listOfFreeNumber.add(taskId);
     }
@@ -183,7 +164,10 @@ public class InMemoryTaskManager implements TaskManager {
     // Метод deleteEpicById удаляет задачу типа Epic
     @Override
     public void deleteEpicById(Long taskId) {
-        taskHistory.add(getEpicById(taskId));
+        // taskHistory.add(getEpicById(taskId));
+        taskHistory.remove(taskId);
+        taskHistory.getHistoryHashMap().remove(taskId);
+
         // Удаление подзадач типа SubTask, относящихся к выбранной задаче типа Epic
         for (Long key : getEpicById(taskId).getMapOfSubTasks().keySet()) {
             subTasks.remove(key);
@@ -196,10 +180,14 @@ public class InMemoryTaskManager implements TaskManager {
     // Метод deleteSubTaskById удаляет задачу типа SubTask
     @Override
     public void deleteSubTaskById(Long taskId) {
-        taskHistory.add(getSubTaskById(taskId));
+        // taskHistory.add(getSubTaskById(taskId));
+        taskHistory.remove(taskId);
+        taskHistory.getHistoryHashMap().remove(taskId);
+
         subTasks.remove(taskId);
         listOfFreeNumber.add(taskId);
         epics.get(getSubTaskById(taskId).getNumberOfEpic()).getMapOfSubTasks().remove(taskId);
+        updateTaskStatusOfEpic(epics.get(getSubTaskById(taskId).getNumberOfEpic()));
     }
 
     // Метод deleteAllTasks удаляет все задачи и очищает историю
@@ -278,5 +266,48 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public List<Task> history() {
         return taskHistory.getHistory();
+    }
+
+    // Метод updateTaskStatusOfEpic меняет статус задачи типа Epic,
+    // основываясь на статусах всех относящихся к ней подзадач (задач типа SubTask),
+    // по следующему правилу:
+    // - если у эпика нет подзадач или все они имеют статус NEW, то статус должен быть NEW.
+    // - если все подзадачи имеют статус DONE, то и эпик считается завершённым — со статусом DONE.
+    // - во всех остальных случаях статус должен быть IN_PROGRESS.
+    public void updateTaskStatusOfEpic(Epic epic) {
+        // Если у эпика нет подзадач, то статус должен быть NEW.
+        if (epic.getMapOfSubTasks().size() == 0) {
+            epic.setTaskStatus(TaskStatus.NEW);
+            return;
+        }
+
+        // Если у эпика все подзадачи имеют статус NEW, то статус должен быть NEW.
+        boolean isAllStatusesEqualsNew = true;
+        for (Long key : epic.getMapOfSubTasks().keySet()) {
+            if (epic.getMapOfSubTasks().get(key).getTaskStatus() != TaskStatus.NEW) {
+                isAllStatusesEqualsNew = false;
+                break;
+            }
+        }
+        if (isAllStatusesEqualsNew) {
+            epic.setTaskStatus(TaskStatus.NEW);
+            return;
+        }
+
+        // Если все подзадачи имеют статус DONE, то и эпик считается завершённым — со статусом DONE.
+        boolean isAllStatusesEqualsDone = true;
+        for (Long key : epic.getMapOfSubTasks().keySet()) {
+            if (epic.getMapOfSubTasks().get(key).getTaskStatus() != TaskStatus.DONE) {
+                isAllStatusesEqualsDone = false;
+                break;
+            }
+        }
+        if (isAllStatusesEqualsDone) {
+            epic.setTaskStatus(TaskStatus.DONE);
+            return;
+        }
+
+        // Во всех остальных случаях статус должен быть IN_PROGRESS.
+        epic.setTaskStatus(TaskStatus.IN_PROGRESS);
     }
 }
