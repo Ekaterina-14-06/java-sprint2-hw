@@ -1,5 +1,6 @@
 package taskTracker.tasks;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 
 public class Epic extends Task {
@@ -7,6 +8,8 @@ public class Epic extends Task {
     // ОБЪЯВЛЕНИЕ ЛОКАЛЬНЫХ ПЕРЕМЕННЫХ ДАННОГО КЛАССА
 
     private HashMap<Long, SubTask> mapOfSubTasks = new HashMap<>();
+
+    private LocalDateTime endTime;
 
     // ----------------------------------------------------------------------------------------------------------------
     // ОБЪЯВЛЕНИЕ КОНСТРУКТОРОВ ДАННОГО КЛАССА
@@ -24,6 +27,14 @@ public class Epic extends Task {
 
     public void setMapOfSubTasks(HashMap<Long, SubTask> mapOfSubTasks) {
         this.mapOfSubTasks = mapOfSubTasks;
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
     }
 
     // Переопределение метода toString класса Task: добавление вывода номеров задач типа SubTask данной задачи

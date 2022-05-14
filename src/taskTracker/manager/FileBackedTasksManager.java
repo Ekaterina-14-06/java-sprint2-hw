@@ -6,7 +6,10 @@ import taskTracker.tasks.Task;
 import taskTracker.tasks.TaskStatus;
 
 import java.io.*;
+import java.time.LocalDateTime;
+import java.time.Duration;
 import java.util.List;
+import java.util.TreeSet;
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
 
@@ -98,6 +101,41 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         return super.getTaskById(taskId);
     }
 
+    @Override
+    public LocalDateTime getEndTimeOfTask(Task task) {
+        return super.getEndTimeOfTask(task);
+    }
+
+    @Override
+    public void setEndTimeOfEpic(Epic epic) {
+        super.setEndTimeOfEpic(epic);
+    }
+
+    @Override
+    public void setStartTimeOfEpic(Epic epic) {
+        super.setStartTimeOfEpic(epic);
+    }
+
+    @Override
+    public LocalDateTime getEndTimeOfSubTask(SubTask subTask) {
+        return super.getEndTimeOfSubTask(subTask);
+    }
+
+    @Override
+    public TreeSet<Task> getPrioritizedTasks() {
+        return super.getPrioritizedTasks();
+    }
+
+    @Override
+    public boolean timeCheckOfTask (Task task) {
+        return super.timeCheckOfTask(task);
+    }
+
+    @Override
+    public boolean timeCheckOfSubTask (SubTask task) {
+        return super.timeCheckOfSubTask(task);
+    }
+
     // Метод save - автосохранение в файл формата *.CSV
     public void save() {
         // проверка на существование файла
@@ -119,7 +157,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             BufferedWriter bw = new BufferedWriter(
                                 new FileWriter(fileName));
             String result = "";
-            result = "id,type,name,status,description,epic\n";
+            result = "id,type,name,status,description,startTime,duration,epic\n";
             for (Long key : tasks.keySet()) {
                 result = result + toString(tasks.get(key));
             }
@@ -169,7 +207,9 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 TaskTipe.TASK + "," +
                 task.getTaskName() + "," +
                 task.getTaskStatus() + "," +
-                task.getTaskDescription() + ",\n";
+                task.getTaskDescription() + "," +
+                task.getStartTime() + "," +
+                task.getDuration() + "\n";
     }
 
     // Метод сохранения задачи (типа Epic) в строку
@@ -178,7 +218,9 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 TaskTipe.EPIC + "," +
                 task.getTaskName() + "," +
                 task.getTaskStatus() + "," +
-                task.getTaskDescription() + ",\n";
+                task.getTaskDescription() + "," +
+                task.getStartTime() + "," +
+                task.getDuration() + "\n";
     }
 
     // Метод сохранения задачи (типа SubTask) в строку
@@ -188,6 +230,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 task.getTaskName() + "," +
                 task.getTaskStatus() + "," +
                 task.getTaskDescription() + "," +
+                task.getStartTime() + "," +
+                task.getDuration() + "," +
                 subTasks.get(task.getTaskId()).getNumberOfEpic() + "\n";
     }
 
@@ -197,7 +241,9 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         return new Task(Long.parseLong(split[0]),
                                        split[2],
                                        split[4],
-                    TaskStatus.valueOf(split[3]));
+                    TaskStatus.valueOf(split[3]),
+                   LocalDateTime.parse(split[5]),
+                        Duration.parse(split[6]));
     }
 
     // Метод создания задачи типа Epic из строки
@@ -229,9 +275,11 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 taskStatus = TaskStatus.NEW;
         }
 
-        SubTask subTask = new SubTask(split[2], split[4], Long.parseLong(split[5]), taskStatus);
+        SubTask subTask = new SubTask(split[2], split[4], Long.parseLong(split[7]), taskStatus);
         subTask.setTaskId(Long.parseLong(split[0]));
         subTask.setTaskStatus(TaskStatus.valueOf(split[3]));
+        subTask.setStartTime(LocalDateTime.parse(split[5]));
+        subTask.setDuration(Duration.parse(split[6]));
         return subTask;
     }
 
@@ -299,32 +347,45 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
         System.out.println("\nТЕСТИРОВАНИЕ РАБОТЫ ПРОГРАММЫ\n");
 
+        LocalDateTime ldt;
+        Duration dur;
+
+        ldt = LocalDateTime.of(2022, 05, 13, 10, 45);
+        dur = Duration.ofHours(1);
         System.out.println("1) Создание задачи № 1 типа Task.");
         taskManager.newTask(new Task("Задача № 1",
-                "Описание задачи № 1 типа Task"));
+                "Описание задачи № 1 типа Task", ldt, dur));
 
+        ldt = LocalDateTime.of(2022, 05, 13, 13, 45);
+        dur = Duration.ofHours(1);
         System.out.println("2) Создание задачи № 2 типа Task.");
         taskManager.newTask(new Task("Задача № 2",
-                "Описание задачи № 2 типа Task"));
+                "Описание задачи № 2 типа Task", ldt, dur));
 
         System.out.println("3) Создание задачи № 3 типа Epic.");
         taskManager.newEpic(new Epic("Задача № 3",
                 "Описание задачи № 3 типа Epic"));
 
+        ldt = null;
+        dur = Duration.ofHours(1);
         System.out.println("4) Создание задачи № 4 типа SubTask для задачи № 3 типа Epic.");
         taskManager.newSubTask(new SubTask("Задача № 4",
                 "Описание задачи № 4 типа SubTask для задачи № 3 типа Epic",
-                3L, TaskStatus.NEW));
+                3L, TaskStatus.NEW, ldt, dur));
 
+        ldt = LocalDateTime.of(2022, 05, 13, 18, 45);
+        dur = Duration.ofHours(1);
         System.out.println("5) Создание задачи № 5 типа SubTask для задачи № 3 типа Epic.");
         taskManager.newSubTask(new SubTask("Задача № 5",
                 "Описание задачи № 5 типа SubTask для задачи № 3 типа Epic",
-                3L, TaskStatus.NEW));
+                3L, TaskStatus.NEW, ldt, dur));
 
+        ldt = LocalDateTime.of(2022, 05, 13, 17, 45);
+        dur = Duration.ofHours(1);
         System.out.println("6) Создание задачи № 6 типа SubTask для задачи № 3 типа Epic.");
         taskManager.newSubTask(new SubTask("Задача № 6",
                 "Описание задачи № 4 типа SubTask для задачи № 3 типа Epic",
-                3L, TaskStatus.NEW));
+                3L, TaskStatus.NEW, ldt, dur));
 
         System.out.println("7) Создание задачи № 7 типа Epic.");
         taskManager.newEpic(new Epic("Задача № 7",
@@ -369,20 +430,23 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         System.out.println("\n20) Вывод на экран истории вызова задач:\n");
         System.out.println(taskManager.history());
 
-        System.out.println("\n21) Удаление задачи № 2.");
-        taskManager.deleteTaskById(2L);
+        //System.out.println("\n21) Удаление задачи № 2.");
+        //taskManager.deleteTaskById(2L);
 
         System.out.println("\n22) Вывод на экран всех задач:");
         taskManager.showAllTasks();
 
-        System.out.println("\n23) Удаление задачи № 3.");
-        taskManager.deleteEpicById(3L);
+        //System.out.println("\n23) Удаление задачи № 3.");
+        //taskManager.deleteEpicById(3L);
 
         System.out.println("\n24) Вывод на экран всех задач:");
         taskManager.showAllTasks();
 
         System.out.println("\n25) Вывод на экран истории вызова задач:\n");
         System.out.println(taskManager.history());
+
+        System.out.println("\n26) Вывод на экран упорядоченного по времени (поле startTime) списка задач:\n");
+        System.out.println(taskManager.getPrioritizedTasks());
 
         System.out.println("\nТЕСТИРОВАНИЕ ЗАВЕРШЕНО");
     }

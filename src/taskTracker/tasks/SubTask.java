@@ -1,5 +1,8 @@
 package taskTracker.tasks;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class SubTask extends Task {
     // ----------------------------------------------------------------------------------------------------------------
     // ОБЪЯВЛЕНИЕ ЛОКАЛЬНЫХ ПЕРЕМЕННЫХ ДАННОГО КЛАССА
@@ -8,6 +11,33 @@ public class SubTask extends Task {
 
     // ----------------------------------------------------------------------------------------------------------------
     // ОБЪЯВЛЕНИЕ КОНСТРУКТОРОВ ДАННОГО КЛАССА
+
+
+    public SubTask(String taskName,
+                   String taskDescription,
+                   Long numberOfEpic,
+                   TaskStatus taskStatus,
+                   LocalDateTime startTime,
+                   Duration duration) {
+        super(taskName, taskDescription);
+        this.numberOfEpic = numberOfEpic;
+        this.taskStatus = taskStatus;
+        this.startTime = startTime;
+        this.duration = duration;
+    }
+
+    //конструктор для теста с пустым списком задач
+    public SubTask(String taskName,
+                   String taskDescription,
+                   TaskStatus taskStatus,
+                   LocalDateTime startTime,
+                   Duration duration) {
+        super(taskName, taskDescription);
+        this.numberOfEpic = numberOfEpic;
+        this.taskStatus = taskStatus;
+        this.startTime = startTime;
+        this.duration = duration;
+    }
 
     public SubTask(String taskName, String taskDescription, Long numberOfEpic, TaskStatus taskStatus) {
         super(taskName, taskDescription);

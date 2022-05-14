@@ -1,9 +1,10 @@
 package taskTracker.manager;
 
 import taskTracker.tasks.*;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.HashMap;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
     // ----------------------------------------------------------------------------------------------------------------
@@ -17,6 +18,17 @@ public class InMemoryTaskManager implements TaskManager {
 
     // mapOfSubTasks - список задач типа SubTask
     protected static final HashMap<Long, SubTask> subTasks = new HashMap<>();
+
+    // comparator - для сравнения двух задач по полю startTime (для сортировки набора prioritizedTasks типа TreeSet)
+    protected static Comparator<? extends Task> comparator = new Comparator<>() {
+        @Override
+        public int compare(Task o1, Task o2) {
+            return o1.getStartTime().compareTo(o2.getStartTime());
+        }
+    };
+
+    // Набор prioritizedTasks типа TreeSet для хранения отсортированного по полю startTime (т.е. по приоритету) списка всех задач
+    protected static final TreeSet<Task> prioritizedTasks = new TreeSet<>((Comparator<Task>) comparator);
 
     // countOfTasks содержит номер последней созданной задачи
     protected long countOfTasks = 0;
@@ -45,7 +57,30 @@ public class InMemoryTaskManager implements TaskManager {
             task.setTaskId(listOfFreeNumber.get(0));
             listOfFreeNumber.remove(0);
         }
+
+        // Проверка: Если задача является первой и у неё не задано время StartTime, то:
+        if (getPrioritizedTasks().size() == 0 && task.getStartTime() == null) {
+            System.out.println("Ошибка! Первая задача не может не содержать время старта.\n" +
+                    "Задача не была добавлена.");
+            return;
+        }
+
+        // Если время startTime у задачи не задано, то она ставится в конец.
+        if (task.getStartTime() == null) {
+            task.setStartTime(getPrioritizedTasks().last().getStartTime().plus(
+                              getPrioritizedTasks().last().getDuration()));
+        } else {
+
+            // Проверка на наличие подходящего свободного временного промежутка между задачами
+            if (!timeCheckOfTask(task)) {
+                System.out.println("Ошибка! Невозможно создать задачу с данными значениями полей startTime и duration\n" +
+                        "(недопустимо пересечение задач по времени их выполнения).\n" +
+                        "Задача не была добавлена.");
+                return;
+            }
+        }
         tasks.put(task.getTaskId(), task);
+        prioritizedTasks.add(task);
     }
 
     // Метод newEpic создаёт новую задачу типа Epic
@@ -57,7 +92,18 @@ public class InMemoryTaskManager implements TaskManager {
             epic.setTaskId(listOfFreeNumber.get(0));
             listOfFreeNumber.remove(0);
         }
+
+        if (getPrioritizedTasks().size() == 0) {
+            epic.setStartTime(LocalDateTime.now());
+            epic.setDuration(Duration.ofSeconds(1));
+        } else {
+            epic.setStartTime(getPrioritizedTasks().last().getStartTime().plus(
+                              getPrioritizedTasks().last().getDuration()));
+            epic.setDuration(Duration.ofSeconds(1));
+        }
         epics.put(epic.getTaskId(), epic);
+        prioritizedTasks.add(epic);
+        updateTaskStatusOfEpic(epics.get(epic.getTaskId()));
     }
 
     // Метод newSubTask создаёт новую задачу типа SubTask
@@ -71,9 +117,36 @@ public class InMemoryTaskManager implements TaskManager {
                 subTask.setTaskId(listOfFreeNumber.get(0));
                 listOfFreeNumber.remove(0);
             }
+
+            // Проверка: Если задача является первой и у неё не задано время StartTime, то:
+            if (getPrioritizedTasks().size() == 0 && subTask.getStartTime() == null) {
+                System.out.println("Ошибка! Первая задача не может не содержать время старта.\n" +
+                        "Задача не была добавлена.");
+                return;
+            }
+
+            // Если время startTime у задачи не задано, то она ставится в конец.
+            if (subTask.getStartTime() == null) {
+                subTask.setStartTime(getPrioritizedTasks().last().getStartTime().plus(
+                        getPrioritizedTasks().last().getDuration()));
+            } else {
+                // Проверка на наличие подходящего свободного временного промежутка между задачами
+                if (!timeCheckOfSubTask(subTask)) {
+                    System.out.println("Ошибка! Невозможно создать задачу с данными значениями полей startTime и duration\n" +
+                            "(недопустимо пересечение задач по времени их выполнения).\n" +
+                            "Задача не была добавлена.");
+                    return;
+                }
+            }
+
             subTasks.put(subTask.getTaskId(), subTask);
             epic.getMapOfSubTasks().put(subTask.getTaskId(), subTask);
             updateTaskStatusOfEpic(epic);
+            prioritizedTasks.add(subTask);
+
+            // Актуализация значения поля EndTime у соответствующего Epic
+            setEndTimeOfEpic(epic);
+            setStartTimeOfEpic(epic);
         } else {
             System.out.println("Ошибка. Не существует эпик, для которого создается сабтаск. Сабтаск не создан");
         }
@@ -109,13 +182,28 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateTask(Task task) {
         Task updatableTask = getTaskById(task.getTaskId());
+        // Проверка на существование задачи с заданным TaskId
         if (updatableTask == null) {
             System.out.println("Такой задачи нет.");
             return;
         }
+
+        if (!(updatableTask.getStartTime().equals(task.getStartTime()) &&
+            updatableTask.getDuration().equals(task.getDuration()))) {
+            // Проверка на наличие подходящего свободного временного промежутка между задачами
+            if (!timeCheckOfTask(task)) {
+                System.out.println("Ошибка! Невозможно создать задачу с данными значениями полей startTime и duration\n" +
+                        "(недопустимо пересечение задач по времени их выполнения).\n" +
+                        "Задача не была добавлена.");
+                return;
+            }
+        }
+
         updatableTask.setTaskName(task.getTaskName());
         updatableTask.setTaskDescription(task.getTaskDescription());
         updatableTask.setTaskStatus(task.getTaskStatus());
+        updatableTask.setStartTime(task.getStartTime());
+        updatableTask.setDuration(task.getDuration());
         taskHistory.add(updatableTask);
     }
 
@@ -139,15 +227,32 @@ public class InMemoryTaskManager implements TaskManager {
 
     public void updateSubtask(SubTask subTask) {
         SubTask updatableSubTask = getSubTaskById(subTask.getTaskId());
+        // Проверка на существование задачи с заданным TaskId
         if (updatableSubTask == null) {
             System.out.println("Такой задачи нет.");
             return;
+        }
+
+        if (!(updatableSubTask.getStartTime().equals(subTask.getStartTime()) &&
+                updatableSubTask.getDuration().equals(subTask.getDuration()))) {
+            // Проверка на наличие подходящего свободного временного промежутка между задачами
+            if (!timeCheckOfSubTask(subTask)) {
+                System.out.println("Ошибка! Невозможно создать задачу с данными значениями полей startTime и duration\n" +
+                        "(недопустимо пересечение задач по времени их выполнения).\n" +
+                        "Задача не была добавлена.");
+                return;
+            }
         }
 
         updatableSubTask.setTaskName(subTask.getTaskName());
         updatableSubTask.setTaskDescription(subTask.getTaskDescription());
         updatableSubTask.setTaskStatus(subTask.getTaskStatus());
         updateTaskStatusOfEpic(epics.get(updatableSubTask.getNumberOfEpic()));
+
+        // Актуализация значения поля EndTime у соответствующего Epic
+        setEndTimeOfEpic(epics.get(updatableSubTask.getNumberOfEpic()));
+        setStartTimeOfEpic(epics.get(updatableSubTask.getNumberOfEpic()));
+
         //taskHistory.add(updatableSubTask);
     }
 
@@ -157,6 +262,7 @@ public class InMemoryTaskManager implements TaskManager {
         taskHistory.remove(taskId);
         taskHistory.getHistoryHashMap().remove(taskId);
 
+        getPrioritizedTasks().remove(tasks.get(taskId));
         tasks.remove(taskId);
         listOfFreeNumber.add(taskId);
     }
@@ -173,6 +279,7 @@ public class InMemoryTaskManager implements TaskManager {
             subTasks.remove(key);
         }
         getEpicById(taskId).getMapOfSubTasks().clear();
+        getPrioritizedTasks().remove(epics.get(taskId));
         epics.remove(taskId);
         listOfFreeNumber.add(taskId);
     }
@@ -184,10 +291,15 @@ public class InMemoryTaskManager implements TaskManager {
         taskHistory.remove(taskId);
         taskHistory.getHistoryHashMap().remove(taskId);
 
+        getPrioritizedTasks().remove(subTasks.get(taskId));
         subTasks.remove(taskId);
         listOfFreeNumber.add(taskId);
         epics.get(getSubTaskById(taskId).getNumberOfEpic()).getMapOfSubTasks().remove(taskId);
         updateTaskStatusOfEpic(epics.get(getSubTaskById(taskId).getNumberOfEpic()));
+
+        // Актуализация значения поля EndTime у соответствующего Epic
+        setEndTimeOfEpic(epics.get(getSubTaskById(taskId).getNumberOfEpic()));
+        setStartTimeOfEpic(epics.get(getSubTaskById(taskId).getNumberOfEpic()));
     }
 
     // Метод deleteAllTasks удаляет все задачи и очищает историю
@@ -197,6 +309,7 @@ public class InMemoryTaskManager implements TaskManager {
         epics.clear();
         subTasks.clear();
         taskHistory.clearHistory();
+        getPrioritizedTasks().clear();
     }
 
     // Метод showTask выводит на экран список задач любого типа (Task, Epic, SubTask)
@@ -206,11 +319,15 @@ public class InMemoryTaskManager implements TaskManager {
             System.out.println("Имя задачи: " + getTaskById(taskId).getTaskName());
             System.out.println("Описание задачи: " + getTaskById(taskId).getTaskDescription());
             System.out.println("Статус задачи: " + getTaskById(taskId).getTaskStatus());
+            System.out.println("Дата, когда предполагается приступить к выполнению задачи: " + getTaskById(taskId).getStartTime());
+            System.out.println("Продолжительность задачи, оценка того, сколько времени она займёт: " + getTaskById(taskId).getDuration());
             taskHistory.add(getTaskById(taskId));
         } else if (epics.containsKey(taskId)) {
             System.out.println("Имя задачи: " + getEpicById(taskId).getTaskName());
             System.out.println("Описание задачи: " + getEpicById(taskId).getTaskDescription());
             System.out.println("Статус задачи: " + getEpicById(taskId).getTaskStatus());
+            System.out.println("Дата, когда предполагается приступить к выполнению задачи: " + getEpicById(taskId).getStartTime());
+            System.out.println("Продолжительность задачи, оценка того, сколько времени она займёт: " + getEpicById(taskId).getDuration());
             taskHistory.add(getEpicById(taskId));
             System.out.print("Данная задача типа Epic содержит подзадачи типа subTask со следующими номерами: ");
             for (Long key : subTasks.keySet()) {
@@ -222,6 +339,8 @@ public class InMemoryTaskManager implements TaskManager {
                 System.out.println("Имя задачи: " + getSubTaskById(taskId).getTaskName());
                 System.out.println("Описание задачи: " + getSubTaskById(taskId).getTaskDescription());
                 System.out.println("Статус задачи: " + getSubTaskById(taskId).getTaskStatus());
+                System.out.println("Дата, когда предполагается приступить к выполнению задачи: " + getSubTaskById(taskId).getStartTime());
+                System.out.println("Продолжительность задачи, оценка того, сколько времени она займёт: " + getSubTaskById(taskId).getDuration());
                 System.out.println("Номер epic для задачи: " + subTasks.get(taskId).getNumberOfEpic());
                 taskHistory.add(getSubTaskById(taskId));
             } else {
@@ -281,7 +400,6 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
 
-        // Если у эпика все подзадачи имеют статус NEW, то статус должен быть NEW.
         boolean isAllStatusesEqualsNew = true;
         for (Long key : epic.getMapOfSubTasks().keySet()) {
             if (epic.getMapOfSubTasks().get(key).getTaskStatus() != TaskStatus.NEW) {
@@ -294,7 +412,6 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
 
-        // Если все подзадачи имеют статус DONE, то и эпик считается завершённым — со статусом DONE.
         boolean isAllStatusesEqualsDone = true;
         for (Long key : epic.getMapOfSubTasks().keySet()) {
             if (epic.getMapOfSubTasks().get(key).getTaskStatus() != TaskStatus.DONE) {
@@ -309,5 +426,88 @@ public class InMemoryTaskManager implements TaskManager {
 
         // Во всех остальных случаях статус должен быть IN_PROGRESS.
         epic.setTaskStatus(TaskStatus.IN_PROGRESS);
+    }
+
+    @Override
+    public LocalDateTime getEndTimeOfTask(Task task) {
+        return task.getStartTime().plusHours(task.getDuration().toHours())
+                                  .plusMinutes(task.getDuration().toMinutes());
+    }
+
+    @Override
+    public void setEndTimeOfEpic(Epic epic) {
+        LocalDateTime max = LocalDateTime.of(1970, 1, 1, 0, 0);
+        Duration lastDuration = Duration.ofSeconds(0);
+        for (Long key : epic.getMapOfSubTasks().keySet()) {
+            if (epic.getMapOfSubTasks().get(key).getStartTime().isAfter(max)) {
+                max = epic.getMapOfSubTasks().get(key).getStartTime();
+                lastDuration = epic.getMapOfSubTasks().get(key).getDuration();
+            }
+        }
+        epic.setEndTime(max.plusHours(lastDuration.toHours())
+                           .plusMinutes(lastDuration.toMinutes()));
+    }
+
+    @Override
+    public void setStartTimeOfEpic(Epic epic) {
+        LocalDateTime min = LocalDateTime.of(3000, 1, 1, 0, 0);
+        for (Long key : epic.getMapOfSubTasks().keySet()) {
+            if (epic.getMapOfSubTasks().get(key).getStartTime().isBefore(min)) {
+                min = epic.getMapOfSubTasks().get(key).getStartTime();
+            }
+        }
+        epic.setStartTime(min);
+    }
+
+    @Override
+    public LocalDateTime getEndTimeOfSubTask(SubTask subTask) {
+        return subTask.getStartTime().plusHours(subTask.getDuration().toHours())
+                                     .plusMinutes(subTask.getDuration().toMinutes());
+    }
+
+    // Метод getPrioritizedTasks возвращает отсортированный список задач и подзадач в заданном порядке
+    @Override
+    public TreeSet<Task> getPrioritizedTasks() {
+        return prioritizedTasks;
+    }
+
+    // Метод timeCheckOfTask проверяет наличие подходящего свободного временного промежутка между задачами
+    @Override
+    public boolean timeCheckOfTask (Task task) {
+        Task previous = getPrioritizedTasks().floor(task);
+        Task next = getPrioritizedTasks().ceiling(task);
+
+        if (previous != null) {
+            if (next != null) {
+                return task.getStartTime().isAfter(previous.getStartTime().plus(previous.getDuration())) &&
+                        task.getStartTime().plus(task.getDuration()).isBefore(next.getStartTime());
+            } else {
+                return task.getStartTime().isAfter(previous.getStartTime().plus(previous.getDuration()));
+            }
+        } else if (next != null) {
+            return task.getStartTime().plus(task.getDuration()).isBefore(next.getStartTime());
+        } else {
+            return true;
+        }
+    }
+
+    // Метод timeCheckOfSubTask проверяет наличие подходящего свободного временного промежутка между задачами
+    @Override
+    public boolean timeCheckOfSubTask (SubTask task) {
+        Task previous = getPrioritizedTasks().floor(task);
+        Task next = getPrioritizedTasks().ceiling(task);
+
+        if (previous != null) {
+            if (next != null) {
+                return task.getStartTime().isAfter(previous.getStartTime().plus(previous.getDuration())) &&
+                        task.getStartTime().plus(task.getDuration()).isBefore(next.getStartTime());
+            } else {
+                return task.getStartTime().isAfter(previous.getStartTime().plus(previous.getDuration()));
+            }
+        } else if (next != null) {
+            return task.getStartTime().plus(task.getDuration()).isBefore(next.getStartTime());
+        } else {
+            return true;
+        }
     }
 }

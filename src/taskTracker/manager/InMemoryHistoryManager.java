@@ -11,18 +11,10 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     // ----------------------------------------------------------------------------------------------------------------
     // ОБЪЯВЛЕНИЕ ЛОКАЛЬНЫХ ПЕРЕМЕННЫХ ДАННОГО КЛАССА
-    @Override
-    public Map<Long, Node> getHistoryHashMap() {
-        return historyHashMap;
-    }
 
     // Таблица historyHashMap необходима для быстрого поиска соответствующей задачи - узла двунаправленного связанного списка.
     // Её поля: Long - это taskID задачи, а Node - это ссылка на узел двунаправленного связанного списка.
     static Map<Long, Node> historyHashMap = new HashMap<>();
-    @Override
-    public void setListHead(Node listHead) {
-        this.listHead = listHead;
-    }
 
     // listHead указывает на первый узел двунаправленного связанного списка
     static Node listHead = new Node(null, null, null);
@@ -39,6 +31,11 @@ public class InMemoryHistoryManager implements HistoryManager {
     // Метод add добавляет просмотренную задачу в конец двунаправленного связанного списка
     @Override
     public void add(Task task){
+        if (task == null) {
+            System.out.println("Вы ввели null в качестве task. Задача не была добавлена в историю.");
+            return;
+        }
+
         Node node = new Node(null, null, task);
         if (listSize == 0) {
             listHead.setNext(node);
@@ -119,5 +116,27 @@ public class InMemoryHistoryManager implements HistoryManager {
         historyHashMap.clear();
         listHead = new Node(null, null, null);
         listTail = new Node(null, null, null);
+    }
+
+    @Override
+    public Map<Long, Node> getHistoryHashMap() {
+        return historyHashMap;
+    }
+
+    public Node getListHead() {
+        return listHead;
+    }
+
+    @Override
+    public void setListHead(Node listHead) {
+        this.listHead = listHead;
+    }
+
+    public int getListSize() {
+        return listSize;
+    }
+
+    public Node getListTail() {
+        return listTail;
     }
 }
