@@ -46,7 +46,7 @@ class FileBackedTasksManagerTest {
         test.newSubTask(subTask2);
         test.save();
 
-        assertTrue(FileBackedTasksManager.fileExists(fileName));
+        assertTrue(test.fileExists(fileName));
     }
 
     @Test
@@ -93,6 +93,6 @@ class FileBackedTasksManagerTest {
         test.newSubTask(subTask2);
         test.save();
 
-        assertTrue(FileBackedTasksManager.fileExists(fileName));
+        assertTrue(test.fileExists(fileName));
             }
 }

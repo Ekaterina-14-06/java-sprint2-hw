@@ -11,16 +11,16 @@ public class InMemoryTaskManager implements TaskManager {
     // ОБЪЯВЛЕНИЕ ЛОКАЛЬНЫХ ПЕРЕМЕННЫХ ДАННОГО КЛАССА
 
     // mapOfTasks - список задач типа Task
-    protected static final HashMap<Long, Task> tasks = new HashMap<>();
+    protected final HashMap<Long, Task> tasks = new HashMap<>();
 
     // mapOfEpics - список задач типа Epic
-    protected static final HashMap<Long, Epic> epics = new HashMap<>();
+    protected final HashMap<Long, Epic> epics = new HashMap<>();
 
     // mapOfSubTasks - список задач типа SubTask
-    protected static final HashMap<Long, SubTask> subTasks = new HashMap<>();
+    protected final HashMap<Long, SubTask> subTasks = new HashMap<>();
 
     // comparator - для сравнения двух задач по полю startTime (для сортировки набора prioritizedTasks типа TreeSet)
-    protected static Comparator<? extends Task> comparator = new Comparator<>() {
+    protected Comparator<? extends Task> comparator = new Comparator<>() {
         @Override
         public int compare(Task o1, Task o2) {
             return o1.getStartTime().compareTo(o2.getStartTime());
@@ -28,7 +28,7 @@ public class InMemoryTaskManager implements TaskManager {
     };
 
     // Набор prioritizedTasks типа TreeSet для хранения отсортированного по полю startTime (т.е. по приоритету) списка всех задач
-    protected static final TreeSet<Task> prioritizedTasks = new TreeSet<>((Comparator<Task>) comparator);
+    protected final Set<Task> prioritizedTasks = new TreeSet<>((Comparator<Task>) comparator);
 
     // countOfTasks содержит номер последней созданной задачи
     protected long countOfTasks = 0;
@@ -67,8 +67,8 @@ public class InMemoryTaskManager implements TaskManager {
 
         // Если время startTime у задачи не задано, то она ставится в конец.
         if (task.getStartTime() == null) {
-            task.setStartTime(getPrioritizedTasks().last().getStartTime().plus(
-                              getPrioritizedTasks().last().getDuration()));
+            task.setStartTime(((TreeSet<Task>)getPrioritizedTasks()).last().getStartTime().plus(
+                    ((TreeSet<Task>)getPrioritizedTasks()).last().getDuration()));
         } else {
 
             // Проверка на наличие подходящего свободного временного промежутка между задачами
@@ -97,8 +97,8 @@ public class InMemoryTaskManager implements TaskManager {
             epic.setStartTime(LocalDateTime.now());
             epic.setDuration(Duration.ofSeconds(1));
         } else {
-            epic.setStartTime(getPrioritizedTasks().last().getStartTime().plus(
-                              getPrioritizedTasks().last().getDuration()));
+            epic.setStartTime(((TreeSet<Task>)getPrioritizedTasks()).last().getStartTime().plus(
+                    ((TreeSet<Task>)getPrioritizedTasks()).last().getDuration()));
             epic.setDuration(Duration.ofSeconds(1));
         }
         epics.put(epic.getTaskId(), epic);
@@ -127,8 +127,8 @@ public class InMemoryTaskManager implements TaskManager {
 
             // Если время startTime у задачи не задано, то она ставится в конец.
             if (subTask.getStartTime() == null) {
-                subTask.setStartTime(getPrioritizedTasks().last().getStartTime().plus(
-                        getPrioritizedTasks().last().getDuration()));
+                subTask.setStartTime(((TreeSet<Task>)getPrioritizedTasks()).last().getStartTime().plus(
+                        ((TreeSet<Task>)getPrioritizedTasks()).last().getDuration()));
             } else {
                 // Проверка на наличие подходящего свободного временного промежутка между задачами
                 if (!timeCheckOfSubTask(subTask)) {
@@ -467,15 +467,15 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Метод getPrioritizedTasks возвращает отсортированный список задач и подзадач в заданном порядке
     @Override
-    public TreeSet<Task> getPrioritizedTasks() {
+    public Set<Task> getPrioritizedTasks() {
         return prioritizedTasks;
     }
 
     // Метод timeCheckOfTask проверяет наличие подходящего свободного временного промежутка между задачами
     @Override
     public boolean timeCheckOfTask (Task task) {
-        Task previous = getPrioritizedTasks().floor(task);
-        Task next = getPrioritizedTasks().ceiling(task);
+        Task previous = ((TreeSet<Task>)getPrioritizedTasks()).floor(task);
+        Task next = ((TreeSet<Task>)getPrioritizedTasks()).ceiling(task);
 
         if (previous != null) {
             if (next != null) {
@@ -494,8 +494,8 @@ public class InMemoryTaskManager implements TaskManager {
     // Метод timeCheckOfSubTask проверяет наличие подходящего свободного временного промежутка между задачами
     @Override
     public boolean timeCheckOfSubTask (SubTask task) {
-        Task previous = getPrioritizedTasks().floor(task);
-        Task next = getPrioritizedTasks().ceiling(task);
+        Task previous = ((TreeSet<Task>)getPrioritizedTasks()).floor(task);
+        Task next = ((TreeSet<Task>)getPrioritizedTasks()).ceiling(task);
 
         if (previous != null) {
             if (next != null) {

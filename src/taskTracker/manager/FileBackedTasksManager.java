@@ -9,11 +9,12 @@ import java.io.*;
 import java.time.LocalDateTime;
 import java.time.Duration;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
 
-    static String fileName;
+    private String fileName;
     private final HistoryManager taskHistory;
 
     public FileBackedTasksManager(String fileName) {
@@ -122,7 +123,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     @Override
-    public TreeSet<Task> getPrioritizedTasks() {
+    public Set<Task> getPrioritizedTasks() {
         return super.getPrioritizedTasks();
     }
 
@@ -283,7 +284,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         return subTask;
     }
 
-    public static void loadFromFile(){
+    public void loadFromFile(){
         // проверка на существование файла
         if (!fileExists(fileName)){
             return;
@@ -322,7 +323,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         }
     }
 
-    public static boolean fileExists (String fileName){
+    public boolean fileExists (String fileName){
         boolean result = false;
         File file = null;
         try {
@@ -343,7 +344,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     public static void main(String[] args) {
         TaskManager taskManager = Managers.getFileBackedTasksManager();
 
-        loadFromFile();
+        //loadFromFile();
 
         System.out.println("\nТЕСТИРОВАНИЕ РАБОТЫ ПРОГРАММЫ\n");
 
@@ -445,8 +446,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         System.out.println("\n25) Вывод на экран истории вызова задач:\n");
         System.out.println(taskManager.history());
 
-        System.out.println("\n26) Вывод на экран упорядоченного по времени (поле startTime) списка задач:\n");
-        System.out.println(taskManager.getPrioritizedTasks());
+       // System.out.println("\n26) Вывод на экран упорядоченного по времени (поле startTime) списка задач:\n");
+       // System.out.println(taskManager.getPrioritizedTasks());
 
         System.out.println("\nТЕСТИРОВАНИЕ ЗАВЕРШЕНО");
     }

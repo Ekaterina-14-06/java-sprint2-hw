@@ -4,6 +4,7 @@ import taskTracker.tasks.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 
 public interface TaskManager {
@@ -28,7 +29,7 @@ public interface TaskManager {
     void setEndTimeOfEpic(Epic epic);
     void setStartTimeOfEpic(Epic epic);
     LocalDateTime getEndTimeOfSubTask(SubTask subTask);
-    TreeSet<Task> getPrioritizedTasks();
+    Set<Task> getPrioritizedTasks();
     boolean timeCheckOfTask (Task task);
     boolean timeCheckOfSubTask (SubTask task);
 }
