@@ -1,8 +1,12 @@
 package taskTracker.manager;
 
+import java.io.File;
+import java.io.IOException;
+
 public class Managers {
-    public static TaskManager getDefault() {
-        return new InMemoryTaskManager();
+    public static TaskManager getDefault() throws IOException {
+        //return new InMemoryTaskManager();
+        return new HttpTaskManager("http://localhost:8078/"); // <--- УКАЗАТЬ АДРЕС СЕРВЕРА KVServer
     }
 
     public static TaskManager getFileBackedTasksManager() {

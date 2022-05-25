@@ -22,6 +22,10 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         this.fileName = fileName;
     }
 
+    public FileBackedTasksManager() {
+        this.taskHistory = Managers.getDefaultHistory();
+    }
+
     @Override
     public void newTask(Task task) {
         super.newTask(task);
@@ -237,7 +241,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     // Метод создания задачи типа Task из строки
-    public static Task taskFromString(String value) {
+    public Task taskFromString(String value) {
         String[] split = value.split(",");
         return new Task(Long.parseLong(split[0]),
                                        split[2],
@@ -248,7 +252,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     // Метод создания задачи типа Epic из строки
-    public static Epic epicFromString(String value) {
+    public Epic epicFromString(String value) {
         String[] split = value.split(",");
         Epic epic = new Epic(split[2], split[4]);
         epic.setTaskId(Long.parseLong(split[0]));
@@ -257,7 +261,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     // Метод создания задачи типа SubTask из строки
-    public static SubTask subTaskFromString(String value) {
+    public SubTask subTaskFromString(String value) {
         String[] split = value.split(",");
 
         // преобразование типа enum в String

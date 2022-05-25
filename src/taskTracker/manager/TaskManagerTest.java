@@ -1,4 +1,4 @@
-/*package taskTracker.manager;
+package taskTracker.manager;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -58,7 +58,7 @@ class TaskManagerTest {
     //создание эпика и проверка его статуса тестируются в классе EpicTest
     /*@Test
     void shouldNewEpic() {
-    }
+    }*/
 
 
     // 2a. со стандартным поведением
@@ -93,7 +93,7 @@ class TaskManagerTest {
     }
 
     //следующий кусок кода закоментирован, так как пока так и не смогла найти NPE в самом коде при методах удаления
-    / 2a. со стандартным поведением
+    /*// 2a. со стандартным поведением
     @Test
     void shouldDeleteTaskById() {
         LocalDateTime ldt;
@@ -156,7 +156,7 @@ class TaskManagerTest {
     //2b. с пустым списком задач
     @Test
     void shouldDeleteAllTasksEmpty() {
-    }
+    }*/
 
     // 2a. со стандартным поведением
     @Test
@@ -297,4 +297,4 @@ class TaskManagerTest {
     void shouldGetPrioritizedTasksEmpty() {
         assertEquals(0, test.getPrioritizedTasks().size());
     }
-} */
+}
