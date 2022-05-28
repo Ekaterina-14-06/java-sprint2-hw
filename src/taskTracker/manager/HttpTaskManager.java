@@ -1,190 +1,70 @@
 package taskTracker.manager;
 
-import taskTracker.tasks.Epic;
-import taskTracker.tasks.SubTask;
-import taskTracker.tasks.Task;
-import taskTracker.tasks.TaskStatus;
-
-import java.io.*;
-import java.time.Duration;
-import java.time.LocalDateTime;
+import taskTracker.tasks.*;
 import java.util.List;
-import java.util.Set;
-
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.Gson;
-
-// В этом классе (HttpTaskManager) необходимо заменить вызовы сохранения в файл на вызов клиента.
-
-// Класс HttpTaskManager наследуется от класса FileBackedTasksManager.
 public class HttpTaskManager extends FileBackedTasksManager {
+    KVTaskClient kvTaskClient;
 
     // Объявление КОНСТРУКТОРА КЛАССА
-    // Объект класса принимает URL к серверу KVServer вместо имени файла
-    public HttpTaskManager(String pathOfKVServer) throws IOException{
+    // Объект класса HttpTaskManager принимает URL к серверу KVServer вместо имени файла
+    public HttpTaskManager(String kvServerAddress, int kvServerPort) throws IOException {
         // Класс HttpTaskManager создаёт kvTaskClient, из которого можно получить исходное состояние менеджера
-        KVTaskClient kvTaskClient = new KVTaskClient();
+        KVTaskClient kvTaskClient = new KVTaskClient(kvServerAddress, kvServerPort);
     }
 
+    // Переопределение метода save (замена вызова сохранения в файл на вызов клиента).
+    // Метод save будет сохранять историю и все типы задач в метод put класса KVTaskClient.
     @Override
-    public void newTask(Task task) {
-        super.newTask(task);
+    public void save() throws MyException {
+        String result = "id,type,name,status,description,startTime,duration,epic\n";
+        for (Long key : tasks.keySet()) {
+            result = result + toString(tasks.get(key));
+        }
+        for (Long key : epics.keySet()) {
+            result = result + toString(epics.get(key));
+        }
+        for (Long key : subTasks.keySet()) {
+            result = result + toString(subTasks.get(key));
+        }
+
+        result = result + "\n";
+
+        List<Task> listOfTasks = taskHistory.getHistory();
+        for (int i = 0; i < listOfTasks.size(); i++) {
+            result = result + listOfTasks.get(i).getTaskId();
+            if (i < (listOfTasks.size() - 1)) {
+                result = result + ",";
+            }
+        }
+
+        kvTaskClient.put("", result);  // <--- НЕ ЗНАЮ, что такое key!
     }
 
-    @Override
-    public void newEpic(Epic epic) {
-        super.newEpic(epic);
+    // Метод load будет получать с помощью метода load из класса KVTaskClient все типы задач
+    // и добавлять их в хранилище с помощью метода addTasks, реализованного ранее в классе HttpTaskManager,
+    // и заполнять историю.
+    public void load() throws MyException {
+        addTasks(kvTaskClient.load(""));  // <--- НЕ ЗНАЮ, что такое key!
     }
 
-    @Override
-    public void newSubTask(SubTask subTask) {
-        super.newSubTask(subTask);
-    }
+    // Метод addTasks будет загружать в наше хранилище задачи, подзадачи, эпики.
+    public void addTasks(String contentKVServer) {
+        // contentKVServer - строка, содержащая все задачи, полученные из KVServer (аналог метода loadFromFile класса FileBackedTasksManager).
+        String[] lines = contentKVServer.split("\n");
+        for (int i = 1; i < lines.length; i++) {
+            if (lines[i] == null) break;
+            if (lines[i].equals("")) break;
 
-    @Override
-    public void updateTask(Task task) {
-        super.updateTask(task);
-    }
-
-    public void updateEpic (Epic epic) {
-        super.updateEpic(epic);
-    }
-
-    @Override
-    public void updateSubtask(SubTask subTask) {
-        super.updateSubtask(subTask);
-    }
-
-    @Override
-    public void deleteTaskById(Long taskId) {
-        super.deleteTaskById(taskId);
-    }
-
-    @Override
-    public void deleteEpicById(Long taskId) {
-        super.deleteEpicById(taskId);
-    }
-
-    @Override
-    public void deleteSubTaskById(Long taskId) {
-        super.deleteSubTaskById(taskId);
-    }
-
-    @Override
-    public void deleteAllTasks() {
-        super.deleteAllTasks();
-    }
-
-    @Override
-    public void showTask(Long taskId) {
-        super.showTask(taskId);
-    }
-
-    @Override
-    public void showAllTasks() {
-        super.showAllTasks();
-    }
-
-    @Override
-    public List<Task> history() {
-        return super.history();
-    }
-
-    @Override
-    public Task getTaskById(Long taskId) {
-        return super.getTaskById(taskId);
-    }
-
-    @Override
-    public LocalDateTime getEndTimeOfTask(Task task) {
-        return super.getEndTimeOfTask(task);
-    }
-
-    @Override
-    public void setEndTimeOfEpic(Epic epic) {
-        super.setEndTimeOfEpic(epic);
-    }
-
-    @Override
-    public void setStartTimeOfEpic(Epic epic) {
-        super.setStartTimeOfEpic(epic);
-    }
-
-    @Override
-    public LocalDateTime getEndTimeOfSubTask(SubTask subTask) {
-        return super.getEndTimeOfSubTask(subTask);
-    }
-
-    @Override
-    public Set<Task> getPrioritizedTasks() {
-        return super.getPrioritizedTasks();
-    }
-
-    @Override
-    public boolean timeCheckOfTask (Task task) {
-        return super.timeCheckOfTask(task);
-    }
-
-    @Override
-    public boolean timeCheckOfSubTask (SubTask task) {
-        return super.timeCheckOfSubTask(task);
-    }
-
-    @Override
-    public void save() {
-        super.save();
-    }
-
-    @Override
-    public String toString(Task task) {
-        return super.toString(task);
-    }
-
-    @Override
-    public String taskToString(Task task) {
-        return super.taskToString(task);
-    }
-
-    @Override
-    public String epicToString(Task task) {
-        return super.epicToString(task);
-    }
-
-    @Override
-    public String subTaskToString(Task task) {
-        return super.subTaskToString(task);
-    }
-
-    @Override
-    public Task taskFromString(String value) {
-        return super.taskFromString(value);
-    }
-
-    @Override
-    public Epic epicFromString(String value) {
-        return super.epicFromString(value);
-    }
-
-    @Override
-    public SubTask subTaskFromString(String value) {
-        return super.subTaskFromString(value);
-    }
-
-    @Override
-    public void loadFromFile(){
-        super.loadFromFile();
-    }
-
-    @Override
-    public boolean fileExists(String fileName) {
-        return super.fileExists(fileName);
+            String[] split = lines[i].split(",");
+            if (split[1].equals("TASK")) {
+                tasks.put(taskFromString(lines[i]).getTaskId(), taskFromString(lines[i]));
+            } else if (split[1].equals("EPIC")) {
+                epics.put(epicFromString(lines[i]).getTaskId(), epicFromString(lines[i]));
+            } else if (split[1].equals("SUB_TASK")) {
+                subTasks.put(subTaskFromString(lines[i]).getTaskId(), subTaskFromString(lines[i]));
+            }
+        }
     }
 }

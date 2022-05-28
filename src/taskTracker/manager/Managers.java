@@ -4,9 +4,16 @@ import java.io.File;
 import java.io.IOException;
 
 public class Managers {
+    static String kvServerAddress = "http://localhost";
+    static int kvServerPort = 8078;
+
     public static TaskManager getDefault() throws IOException {
-        //return new InMemoryTaskManager();
-        return new HttpTaskManager("http://localhost:8078/"); // <--- УКАЗАТЬ АДРЕС СЕРВЕРА KVServer
+        // Объект класса HttpTaskManager принимает URL к серверу KVServer вместо имени файла
+        return new HttpTaskManager(kvServerAddress, kvServerPort);
+    }
+
+    public static TaskManager getInMemoryTaskManager() {
+        return new InMemoryTaskManager();
     }
 
     public static TaskManager getFileBackedTasksManager() {

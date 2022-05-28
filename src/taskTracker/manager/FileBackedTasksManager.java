@@ -15,7 +15,7 @@ import java.util.TreeSet;
 public class FileBackedTasksManager extends InMemoryTaskManager {
 
     private String fileName;
-    private final HistoryManager taskHistory;
+    final HistoryManager taskHistory;
 
     public FileBackedTasksManager(String fileName) {
         this.taskHistory = Managers.getDefaultHistory();
@@ -28,67 +28,155 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     @Override
     public void newTask(Task task) {
-        super.newTask(task);
-        save();
+        try {
+            super.newTask(task);
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
+        try {
+            save();
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void newEpic(Epic epic) {
-        super.newEpic(epic);
-        save();
+        try {
+            super.newEpic(epic);
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
+        try {
+            save();
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void newSubTask(SubTask subTask) {
-        super.newSubTask(subTask);
-        save();
+        try {
+            super.newSubTask(subTask);
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
+        try {
+            save();
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void updateTask(Task task) {
-        super.updateTask(task);
-        save();
+        try {
+            super.updateTask(task);
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
+        try {
+            save();
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
     }
 
     public void updateEpic (Epic epic) {
-        super.updateEpic(epic);
-        save();
+        try {
+            super.updateEpic(epic);
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
+        try {
+            save();
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void updateSubtask(SubTask subTask) {
-        super.updateSubtask(subTask);
-        save();
+        try {
+            super.updateSubtask(subTask);
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
+        try {
+            save();
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void deleteTaskById(Long taskId) {
-        super.deleteTaskById(taskId);
-        save();
+        try {
+            super.deleteTaskById(taskId);
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
+        try {
+            save();
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void deleteEpicById(Long taskId) {
-        super.deleteEpicById(taskId);
-        save();
+        try {
+            super.deleteEpicById(taskId);
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
+        try {
+            save();
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void deleteSubTaskById(Long taskId) {
-        super.deleteSubTaskById(taskId);
-        save();
+        try {
+            super.deleteSubTaskById(taskId);
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
+        try {
+            save();
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void deleteAllTasks() {
-        super.deleteAllTasks();
-        save();
+        try {
+            super.deleteAllTasks();
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
+        try {
+            save();
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void showTask(Long taskId) {
-        super.showTask(taskId);
-        save();
+        try {
+            super.showTask(taskId);
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
+        try {
+            save();
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -142,7 +230,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     // Метод save - автосохранение в файл формата *.CSV
-    public void save() {
+    public void save() throws MyException {
         // проверка на существование файла
         if (!fileExists(fileName)){
             try {
@@ -358,79 +446,131 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         ldt = LocalDateTime.of(2022, 05, 13, 10, 45);
         dur = Duration.ofHours(1);
         System.out.println("1) Создание задачи № 1 типа Task.");
-        taskManager.newTask(new Task("Задача № 1",
-                "Описание задачи № 1 типа Task", ldt, dur));
+        try {
+            taskManager.newTask(new Task("Задача № 1",
+                    "Описание задачи № 1 типа Task", ldt, dur));
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
 
         ldt = LocalDateTime.of(2022, 05, 13, 13, 45);
         dur = Duration.ofHours(1);
         System.out.println("2) Создание задачи № 2 типа Task.");
-        taskManager.newTask(new Task("Задача № 2",
-                "Описание задачи № 2 типа Task", ldt, dur));
+        try {
+            taskManager.newTask(new Task("Задача № 2",
+                    "Описание задачи № 2 типа Task", ldt, dur));
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
 
         System.out.println("3) Создание задачи № 3 типа Epic.");
-        taskManager.newEpic(new Epic("Задача № 3",
-                "Описание задачи № 3 типа Epic"));
+        try {
+            taskManager.newEpic(new Epic("Задача № 3",
+                    "Описание задачи № 3 типа Epic"));
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
 
         ldt = null;
         dur = Duration.ofHours(1);
         System.out.println("4) Создание задачи № 4 типа SubTask для задачи № 3 типа Epic.");
-        taskManager.newSubTask(new SubTask("Задача № 4",
-                "Описание задачи № 4 типа SubTask для задачи № 3 типа Epic",
-                3L, TaskStatus.NEW, ldt, dur));
+        try {
+            taskManager.newSubTask(new SubTask("Задача № 4",
+                    "Описание задачи № 4 типа SubTask для задачи № 3 типа Epic",
+                    3L, TaskStatus.NEW, ldt, dur));
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
 
         ldt = LocalDateTime.of(2022, 05, 13, 18, 45);
         dur = Duration.ofHours(1);
         System.out.println("5) Создание задачи № 5 типа SubTask для задачи № 3 типа Epic.");
-        taskManager.newSubTask(new SubTask("Задача № 5",
-                "Описание задачи № 5 типа SubTask для задачи № 3 типа Epic",
-                3L, TaskStatus.NEW, ldt, dur));
+        try {
+            taskManager.newSubTask(new SubTask("Задача № 5",
+                    "Описание задачи № 5 типа SubTask для задачи № 3 типа Epic",
+                    3L, TaskStatus.NEW, ldt, dur));
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
 
         ldt = LocalDateTime.of(2022, 05, 13, 17, 45);
         dur = Duration.ofHours(1);
         System.out.println("6) Создание задачи № 6 типа SubTask для задачи № 3 типа Epic.");
-        taskManager.newSubTask(new SubTask("Задача № 6",
-                "Описание задачи № 4 типа SubTask для задачи № 3 типа Epic",
-                3L, TaskStatus.NEW, ldt, dur));
+        try {
+            taskManager.newSubTask(new SubTask("Задача № 6",
+                    "Описание задачи № 4 типа SubTask для задачи № 3 типа Epic",
+                    3L, TaskStatus.NEW, ldt, dur));
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
 
         System.out.println("7) Создание задачи № 7 типа Epic.");
-        taskManager.newEpic(new Epic("Задача № 7",
-                "Описание задачи № 7 типа Epic"));
+        try {
+            taskManager.newEpic(new Epic("Задача № 7",
+                    "Описание задачи № 7 типа Epic"));
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
 
         System.out.println("\n8) Вывод на экран всех созданных задач:\n");
         taskManager.showAllTasks();
 
         System.out.println("9) Вывод на экран значений полей задачи № 3:\n");
-        taskManager.showTask(3L);
+        try {
+            taskManager.showTask(3L);
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
 
         System.out.println("\n10) Вывод на экран истории вызова задач:\n");
         System.out.println(taskManager.history());
 
         System.out.println("\n11) Вывод на экран значений полей задачи № 1:");
-        taskManager.showTask(1L);
+        try {
+            taskManager.showTask(1L);
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
 
         System.out.println("\n12) Вывод на экран истории вызова задач:\n");
         System.out.println(taskManager.history());
 
         System.out.println("\n13) Вывод на экран значений полей задачи № 6:");
-        taskManager.showTask(6L);
+        try {
+            taskManager.showTask(6L);
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
 
         System.out.println("\n14) Вывод на экран истории вызова задач:\n");
         System.out.println(taskManager.history());
 
         System.out.println("\n15) Вывод на экран значений полей задачи № 2:");
-        taskManager.showTask(2L);
+        try {
+            taskManager.showTask(2L);
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
 
         System.out.println("\n16) Вывод на экран истории вызова задач:\n");
         System.out.println(taskManager.history());
 
         System.out.println("\n17) Вывод на экран значений полей задачи № 2:");
-        taskManager.showTask(2L);
+        try {
+            taskManager.showTask(2L);
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
 
         System.out.println("\n18) Вывод на экран истории вызова задач:\n");
         System.out.println(taskManager.history());
 
         System.out.println("\n19) Вывод на экран значений полей задачи № 1:");
-        taskManager.showTask(1L);
+        try {
+            taskManager.showTask(1L);
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
 
         System.out.println("\n20) Вывод на экран истории вызова задач:\n");
         System.out.println(taskManager.history());

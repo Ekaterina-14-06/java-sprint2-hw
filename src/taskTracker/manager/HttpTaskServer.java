@@ -4,10 +4,7 @@ import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-import taskTracker.tasks.Epic;
-import taskTracker.tasks.SubTask;
-import taskTracker.tasks.Task;
-import taskTracker.tasks.TaskStatus;
+import taskTracker.tasks.*;
 
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -32,14 +29,13 @@ import com.google.gson.Gson;
 import static jdk.internal.util.xml.XMLStreamWriter.DEFAULT_CHARSET;
 
 // Класс HttpTaskServer слушает порт 8080 и принимает запросы.
-// Данный класс реализует класс FileBackedTasksManager.
-public class HttpTaskServer extends FileBackedTasksManager {
-    private static final int PORT = 8080;
+public class HttpTaskServer {
+    private static final int PORT_KVCLIENT = 8080;
     private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
     private static HttpServer httpServer;
     private final TaskManager taskManager;
 
-    //геттеры
+    // геттеры
     public static HttpServer getHttpServer() {
         return httpServer;
     }
@@ -48,13 +44,12 @@ public class HttpTaskServer extends FileBackedTasksManager {
         return taskManager;
     }
 
-
     // Объявление конструктора класса HttpTaskServer
     public HttpTaskServer() throws IOException {
         // Создание сервера
         this.httpServer = HttpServer.create();
         // Привязка сервера к порту
-        this.httpServer.bind(new InetSocketAddress(PORT), 0);
+        this.httpServer.bind(new InetSocketAddress(PORT_KVCLIENT), 0);
         // Связывание пути и обработчика (handler) запроса (т.е. определение эндпоинта)
         this.httpServer.createContext("/tasks", new showAllTasksHandler());
         this.httpServer.createContext("/tasks/task", new newTaskHandler());
@@ -64,163 +59,8 @@ public class HttpTaskServer extends FileBackedTasksManager {
         this.taskManager = Managers.getDefault();
         // Запуск сервера
         httpServer.start();
-        System.out.println("HTTP-сервер запущен на " + PORT + " порту!");
+        System.out.println("HTTP-сервер запущен на " + PORT_KVCLIENT + " порту!");
     }
-
-    @Override
-    public void newTask(Task task) {
-        super.newTask(task);
-    }
-
-    @Override
-    public void newEpic(Epic epic) {
-        super.newEpic(epic);
-    }
-
-    @Override
-    public void newSubTask(SubTask subTask) {
-        super.newSubTask(subTask);
-    }
-
-    @Override
-    public void updateTask(Task task) {
-        super.updateTask(task);
-    }
-
-    public void updateEpic (Epic epic) {
-        super.updateEpic(epic);
-    }
-
-    @Override
-    public void updateSubtask(SubTask subTask) {
-        super.updateSubtask(subTask);
-    }
-
-    @Override
-    public void deleteTaskById(Long taskId) {
-        super.deleteTaskById(taskId);
-    }
-
-    @Override
-    public void deleteEpicById(Long taskId) {
-        super.deleteEpicById(taskId);
-    }
-
-    @Override
-    public void deleteSubTaskById(Long taskId) {
-        super.deleteSubTaskById(taskId);
-    }
-
-    @Override
-    public void deleteAllTasks() {
-        super.deleteAllTasks();
-    }
-
-    @Override
-    public void showTask(Long taskId) {
-        super.showTask(taskId);
-    }
-
-    @Override
-    public void showAllTasks() {
-        super.showAllTasks();
-    }
-
-    @Override
-    public List<Task> history() {
-        return super.history();
-    }
-
-    @Override
-    public Task getTaskById(Long taskId) {
-        return super.getTaskById(taskId);
-    }
-
-    @Override
-    public LocalDateTime getEndTimeOfTask(Task task) {
-        return super.getEndTimeOfTask(task);
-    }
-
-    @Override
-    public void setEndTimeOfEpic(Epic epic) {
-        super.setEndTimeOfEpic(epic);
-    }
-
-    @Override
-    public void setStartTimeOfEpic(Epic epic) {
-        super.setStartTimeOfEpic(epic);
-    }
-
-    @Override
-    public LocalDateTime getEndTimeOfSubTask(SubTask subTask) {
-        return super.getEndTimeOfSubTask(subTask);
-    }
-
-    @Override
-    public Set<Task> getPrioritizedTasks() {
-        return super.getPrioritizedTasks();
-    }
-
-    @Override
-    public boolean timeCheckOfTask (Task task) {
-        return super.timeCheckOfTask(task);
-    }
-
-    @Override
-    public boolean timeCheckOfSubTask (SubTask task) {
-        return super.timeCheckOfSubTask(task);
-    }
-
-    @Override
-    public void save() {
-        super.save();
-    }
-
-    @Override
-    public String toString(Task task) {
-        return super.toString(task);
-    }
-
-    @Override
-    public String taskToString(Task task) {
-        return super.taskToString(task);
-    }
-
-    @Override
-    public String epicToString(Task task) {
-        return super.epicToString(task);
-    }
-
-    @Override
-    public String subTaskToString(Task task) {
-        return super.subTaskToString(task);
-    }
-
-    @Override
-    public Task taskFromString(String value) {
-        return super.taskFromString(value);
-    }
-
-    @Override
-    public Epic epicFromString(String value) {
-        return super.epicFromString(value);
-    }
-
-    @Override
-    public SubTask subTaskFromString(String value) {
-        return super.subTaskFromString(value);
-    }
-
-    @Override
-    public void loadFromFile(){
-        super.loadFromFile();
-    }
-
-    @Override
-    public boolean fileExists(String fileName) {
-        return super.fileExists(fileName);
-    }
-}
 
 // Объявление обработчика запроса
 class showAllTasksHandler implements HttpHandler {
@@ -242,7 +82,11 @@ class showAllTasksHandler implements HttpHandler {
                 }
             case "DELETE": // deleteAllTasks
                 HttpTaskServer httpTaskServer2 = new HttpTaskServer();
-                httpTaskServer2.getTaskManager().deleteAllTasks();
+                try {
+                    httpTaskServer2.getTaskManager().deleteAllTasks();
+                } catch (MyException e) {
+                    e.printStackTrace();
+                }
                 httpExchange.sendResponseHeaders(200, 0);
         }
     }
@@ -273,23 +117,57 @@ class newTaskHandler implements HttpHandler {
                 InputStreamReader streamReader = new InputStreamReader(httpExchange.getRequestBody(), DEFAULT_CHARSET);
                 BufferedReader bufferedReader = new BufferedReader(streamReader);
                 String body = bufferedReader.readLine();
+
+                if (body.length() == 0) {
+                    httpExchange.sendResponseHeaders(400, 0);  // BAD_REQUEST
+                    break;
+                }
+
                 Task taskPost = gson.fromJson(body, Task.class);
-                httpTaskServer.getTaskManager().newTask(taskPost);
+                try {
+                    httpTaskServer.getTaskManager().newTask(taskPost);
+                } catch (MyException e) {
+                    e.printStackTrace();
+                }
                 httpExchange.sendResponseHeaders(200, 0);
                 break;
             case "PATCH":
                 InputStreamReader streamReader2 = new InputStreamReader(httpExchange.getRequestBody(), DEFAULT_CHARSET);
                 BufferedReader bufferedReader2 = new BufferedReader(streamReader2);
                 String body2 = bufferedReader2.readLine();
+
+                if (body2.length() == 0) {
+                    httpExchange.sendResponseHeaders(400, 0);  // BAD_REQUEST
+                    break;
+                }
+
                 Task taskPost2 = gson.fromJson(body2, Task.class);
-                httpTaskServer.getTaskManager().updateTask(taskPost2);
+                try {
+                    httpTaskServer.getTaskManager().updateTask(taskPost2);
+                } catch (MyException e) {
+                    e.printStackTrace();
+                }
                 httpExchange.sendResponseHeaders(200, 0);
                 break;
             case "DELETE":
                 Headers headers2 = httpExchange.getRequestHeaders();
-                Long id2 = Long.parseLong(headers2.get("TaskId").get(0));
-                httpTaskServer.getTaskManager().deleteTaskById(id2);
-                httpExchange.sendResponseHeaders(200, 0);
+
+                if (headers2.get("TaskId") != null) {
+                    Long id2 = Long.parseLong(headers2.get("TaskId").get(0));
+                    try {
+                        httpTaskServer.getTaskManager().deleteTaskById(id2);
+                    } catch (MyException e) {
+                        e.printStackTrace();
+                    }
+                    httpExchange.sendResponseHeaders(200, 0);
+                } else {
+                    try {
+                        httpTaskServer.getTaskManager().deleteAllTasks();
+                    } catch (MyException e) {
+                        e.printStackTrace();
+                    }
+                    httpExchange.sendResponseHeaders(200, 0);
+                }
         }
     }
 }
@@ -305,6 +183,12 @@ class newEpicHandler implements HttpHandler {
             case "GET":
                 String response;
                 Headers headers = httpExchange.getRequestHeaders();
+
+                if (headers.get("TaskId") == null) {
+                    httpExchange.sendResponseHeaders(404, 0);  // NOT_FOUND
+                    return;
+                }
+
                 Long id = Long.parseLong(headers.get("TaskId").get(0));
                 response = gson.toJson(httpTaskServer.getTaskManager().getEpicById(id));
                 try (OutputStream os = httpExchange.getResponseBody()) {
@@ -313,19 +197,64 @@ class newEpicHandler implements HttpHandler {
                     httpExchange.sendResponseHeaders(200, 0);
                     return;
                 }
+            case "PATCH":
+                // Дописать кейс с обновлением эпика.
+                // ИЛИ можно не вводить новый кейс PATCH, а просто вытащить из переданного объекта идентификатор.
+                // Если объект передан с идентификатором - обновляем, если без - добавляем новый)
+                InputStreamReader streamReader2 = new InputStreamReader(httpExchange.getRequestBody(), DEFAULT_CHARSET);
+                BufferedReader bufferedReader2 = new BufferedReader(streamReader2);
+                String body2 = bufferedReader2.readLine();
+
+                if (body2.length() == 0) {
+                    httpExchange.sendResponseHeaders(400, 0);  // BAD_REQUEST
+                    break;
+                }
+
+                Epic epicPost2 = gson.fromJson(body2, Epic.class);
+                try {
+                    httpTaskServer.getTaskManager().updateEpic(epicPost2);
+                } catch (MyException e) {
+                    e.printStackTrace();
+                }
+                httpExchange.sendResponseHeaders(200, 0);
+                break;
             case "POST": // "PUT"
                 InputStreamReader streamReader = new InputStreamReader(httpExchange.getRequestBody(), DEFAULT_CHARSET);
                 BufferedReader bufferedReader = new BufferedReader(streamReader);
                 String body = bufferedReader.readLine();
+
+                if (body.length() == 0) {
+                    httpExchange.sendResponseHeaders(400, 0);  // BAD_REQUEST
+                    break;
+                }
+
                 Epic epicPost = gson.fromJson(body, Epic.class);
-                httpTaskServer.getTaskManager().newEpic(epicPost);
+                try {
+                    httpTaskServer.getTaskManager().newEpic(epicPost);
+                } catch (MyException e) {
+                    e.printStackTrace();
+                }
                 httpExchange.sendResponseHeaders(200, 0);
                 break;
             case "DELETE":
                 Headers headers2 = httpExchange.getRequestHeaders();
-                Long id2 = Long.parseLong(headers2.get("TaskId").get(0));
-                httpTaskServer.getTaskManager().deleteEpicById(id2);
-                httpExchange.sendResponseHeaders(200, 0);
+
+                if (headers2.get("TaskId") != null) {
+                    Long id2 = Long.parseLong(headers2.get("TaskId").get(0));
+                    try {
+                        httpTaskServer.getTaskManager().deleteEpicById(id2);
+                    } catch (MyException e) {
+                        e.printStackTrace();
+                    }
+                    httpExchange.sendResponseHeaders(200, 0);
+                } else {
+                    try {
+                        httpTaskServer.getTaskManager().deleteAllTasks();
+                    } catch (MyException e) {
+                        e.printStackTrace();
+                    }
+                    httpExchange.sendResponseHeaders(200, 0);
+                }
         }
     }
 }
@@ -341,10 +270,14 @@ class newSubTaskHandler implements HttpHandler {
             case "GET":
                 String response;
                 Headers headers = httpExchange.getRequestHeaders();
+
+                if (headers.get("TaskId") == null) {
+                    httpExchange.sendResponseHeaders(404, 0);  // NOT_FOUND
+                }
+
                 Long id = Long.parseLong(headers.get("TaskId").get(0));
                 response = gson.toJson(httpTaskServer.getTaskManager().getSubTaskById(id));
                 try (OutputStream os = httpExchange.getResponseBody()) {
-                    httpExchange.sendResponseHeaders(200, 0);
                     os.write(response.getBytes());
                     httpExchange.sendResponseHeaders(200, 0);
                     return;
@@ -353,23 +286,55 @@ class newSubTaskHandler implements HttpHandler {
                 InputStreamReader streamReader = new InputStreamReader(httpExchange.getRequestBody(), DEFAULT_CHARSET);
                 BufferedReader bufferedReader = new BufferedReader(streamReader);
                 String body = bufferedReader.readLine();
+
+                if (body.length() == 0) {
+                    httpExchange.sendResponseHeaders(400, 0);  // BAD_REQUEST
+                }
+
                 SubTask subTaskPost = gson.fromJson(body, SubTask.class);
-                httpTaskServer.getTaskManager().newSubTask(subTaskPost);
+                try {
+                    httpTaskServer.getTaskManager().newSubTask(subTaskPost);
+                } catch (MyException e) {
+                    e.printStackTrace();
+                }
                 httpExchange.sendResponseHeaders(200, 0);
                 break;
             case "PATCH":
                 InputStreamReader streamReader2 = new InputStreamReader(httpExchange.getRequestBody(), DEFAULT_CHARSET);
                 BufferedReader bufferedReader2 = new BufferedReader(streamReader2);
                 String body2 = bufferedReader2.readLine();
+
+                if (body2.length() == 0) {
+                    httpExchange.sendResponseHeaders(400, 0);  // BAD_REQUEST
+                }
+
                 SubTask subTaskPost2 = gson.fromJson(body2, SubTask.class);
-                httpTaskServer.getTaskManager().updateSubtask(subTaskPost2);
+                try {
+                    httpTaskServer.getTaskManager().updateSubtask(subTaskPost2);
+                } catch (MyException e) {
+                    e.printStackTrace();
+                }
                 httpExchange.sendResponseHeaders(200, 0);
                 break;
             case "DELETE":
                 Headers headers2 = httpExchange.getRequestHeaders();
-                Long id2 = Long.parseLong(headers2.get("TaskId").get(0));
-                httpTaskServer.getTaskManager().deleteSubTaskById(id2);
-                httpExchange.sendResponseHeaders(200, 0);
+
+                if (headers2.get("TaskId") != null) {
+                    Long id2 = Long.parseLong(headers2.get("TaskId").get(0));
+                    try {
+                        httpTaskServer.getTaskManager().deleteSubTaskById(id2);
+                    } catch (MyException e) {
+                        e.printStackTrace();
+                    }
+                    httpExchange.sendResponseHeaders(200, 0);
+                } else {
+                    try {
+                        httpTaskServer.getTaskManager().deleteAllTasks();
+                    } catch (MyException e) {
+                        e.printStackTrace();
+                    }
+                    httpExchange.sendResponseHeaders(200, 0);
+                }
         }
     }
 }

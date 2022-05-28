@@ -44,7 +44,11 @@ class FileBackedTasksManagerTest {
         SubTask subTask2 = new SubTask("Подзадача № 2", "Описание подзадачи № 2: Сабтаск для Эпик № 2",
                 epic.getTaskId(), TaskStatus.NEW, ldt, dur);
         test.newSubTask(subTask2);
-        test.save();
+        try {
+            test.save();
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
 
         assertTrue(test.fileExists(fileName));
     }
@@ -68,7 +72,11 @@ class FileBackedTasksManagerTest {
         SubTask subTask2 = new SubTask("Подзадача № 2", "Описание подзадачи № 2: Сабтаск для Эпик № 2",
                 epic.getTaskId(), TaskStatus.NEW, ldt, dur);
         test.newSubTask(subTask2);
-        test.save();
+        try {
+            test.save();
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
         assertNotEquals(0, test.getPrioritizedTasks());
     }
 
@@ -91,7 +99,11 @@ class FileBackedTasksManagerTest {
         SubTask subTask2 = new SubTask("Подзадача № 2", "Описание подзадачи № 2: Сабтаск для Эпик № 2",
                 epic.getTaskId(), TaskStatus.NEW, ldt, dur);
         test.newSubTask(subTask2);
-        test.save();
+        try {
+            test.save();
+        } catch (MyException e) {
+            e.printStackTrace();
+        }
 
         assertTrue(test.fileExists(fileName));
             }

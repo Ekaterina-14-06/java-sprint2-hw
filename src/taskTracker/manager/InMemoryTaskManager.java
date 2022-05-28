@@ -50,7 +50,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Метод newTask создаёт новую задачу типа Task
     @Override
-    public void newTask(Task task) {
+    public void newTask(Task task) throws MyException {
         if (listOfFreeNumber.isEmpty()) {
             task.setTaskId(++countOfTasks);
         } else {
@@ -85,7 +85,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Метод newEpic создаёт новую задачу типа Epic
     @Override
-    public void newEpic(Epic epic) {
+    public void newEpic(Epic epic) throws MyException {
         if (listOfFreeNumber.isEmpty()) {
             epic.setTaskId(++countOfTasks);
         } else {
@@ -108,7 +108,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Метод newSubTask создаёт новую задачу типа SubTask
     @Override
-    public void newSubTask(SubTask subTask) {
+    public void newSubTask(SubTask subTask) throws MyException {
         Epic epic = epics.get(subTask.getNumberOfEpic());
         if (epic != null) {
             if (listOfFreeNumber.isEmpty()) {
@@ -180,7 +180,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void updateTask(Task task) {
+    public void updateTask(Task task) throws MyException {
         Task updatableTask = getTaskById(task.getTaskId());
         // Проверка на существование задачи с заданным TaskId
         if (updatableTask == null) {
@@ -207,7 +207,7 @@ public class InMemoryTaskManager implements TaskManager {
         taskHistory.add(updatableTask);
     }
 
-    public void updateEpic (Epic epic) {
+    public void updateEpic (Epic epic) throws MyException {
         Epic updatableEpic = getEpicById(epic.getTaskId());
         if (updatableEpic == null) {
             System.out.println("Такой задачи нет.");
@@ -225,7 +225,7 @@ public class InMemoryTaskManager implements TaskManager {
         taskHistory.add(updatableEpic);
     }
 
-    public void updateSubtask(SubTask subTask) {
+    public void updateSubtask(SubTask subTask) throws MyException {
         SubTask updatableSubTask = getSubTaskById(subTask.getTaskId());
         // Проверка на существование задачи с заданным TaskId
         if (updatableSubTask == null) {
@@ -258,7 +258,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Метод deleteTaskById удаляет задачу типа Task
     @Override
-    public void deleteTaskById(Long taskId) {
+    public void deleteTaskById(Long taskId) throws MyException {
         taskHistory.remove(taskId);
         taskHistory.getHistoryHashMap().remove(taskId);
 
@@ -269,7 +269,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Метод deleteEpicById удаляет задачу типа Epic
     @Override
-    public void deleteEpicById(Long taskId) {
+    public void deleteEpicById(Long taskId) throws MyException {
         // taskHistory.add(getEpicById(taskId));
         taskHistory.remove(taskId);
         taskHistory.getHistoryHashMap().remove(taskId);
@@ -286,7 +286,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Метод deleteSubTaskById удаляет задачу типа SubTask
     @Override
-    public void deleteSubTaskById(Long taskId) {
+    public void deleteSubTaskById(Long taskId) throws MyException {
         // taskHistory.add(getSubTaskById(taskId));
         taskHistory.remove(taskId);
         taskHistory.getHistoryHashMap().remove(taskId);
@@ -304,7 +304,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Метод deleteAllTasks удаляет все задачи и очищает историю
     @Override
-    public void deleteAllTasks() {
+    public void deleteAllTasks() throws MyException {
         tasks.clear();
         epics.clear();
         subTasks.clear();
@@ -314,7 +314,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Метод showTask выводит на экран список задач любого типа (Task, Epic, SubTask)
     @Override
-    public void showTask(Long taskId) {
+    public void showTask(Long taskId) throws MyException {
         if (tasks.containsKey(taskId)){
             System.out.println("Имя задачи: " + getTaskById(taskId).getTaskName());
             System.out.println("Описание задачи: " + getTaskById(taskId).getTaskDescription());
