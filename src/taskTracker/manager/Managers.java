@@ -9,7 +9,7 @@ public class Managers {
 
     public static TaskManager getDefault() throws IOException {
         // Объект класса HttpTaskManager принимает URL к серверу KVServer вместо имени файла
-        return new HttpTaskManager(kvServerAddress, kvServerPort);
+        return new HttpTaskManager(kvServerAddress, kvServerPort, true);
     }
 
     public static TaskManager getInMemoryTaskManager() {

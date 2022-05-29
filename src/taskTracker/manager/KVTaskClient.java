@@ -24,7 +24,7 @@ public class KVTaskClient {
     }
 
     // Метод register возвращает токен apiToken, необходимый для авторизации при доступе к серверу KVServer
-    public String register(String kvServerUrl) {
+    public String register(String kvServerUrl) throws MyException {
         try {
             String url = String.format("%s/register", kvServerUrl);
             URI uri = URI.create(url);
@@ -39,16 +39,16 @@ public class KVTaskClient {
             return String.valueOf(response.body().getBytes(StandardCharsets.UTF_8));
         } catch (IOException | InterruptedException e) {
             // e.printStackTrace();
-            System.out.println("Во время выполнения запроса возникла ошибка. /n" +
-                    "Проверьте, пожалуйста, URL-адрес и повторите попытку.");
-            //throw new MyException("Ошибка ответа от сервера. Статус-код не равен 200 (OK).");
-            return "";
+            // System.out.println("Во время выполнения запроса возникла ошибка. /n" +
+            //        "Проверьте, пожалуйста, URL-адрес и повторите попытку.");
+            throw new MyException("Ошибка ответа от сервера. Статус-код не равен 200 (OK).");
+            // return "";
         } catch (IllegalArgumentException e) {
             // e.printStackTrace();
-            System.out.println("Введённый вами адрес не соответствует формату URL. /n" +
-                    "Попробуйте, пожалуйста, снова.");
-            //throw new MyException("Ошибка ответа от сервера. Статус-код не равен 200 (OK).");
-            return "";
+            // System.out.println("Введённый вами адрес не соответствует формату URL. /n" +
+            //         "Попробуйте, пожалуйста, снова.");
+            throw new MyException("Ошибка ответа от сервера. Статус-код не равен 200 (OK).");
+            // return "";
         } catch (MyException e) {
             System.out.println(e.getMessage());
             return "";
@@ -120,8 +120,3 @@ public class KVTaskClient {
     }
 }
 
-public class MyException extends Exception {
-    public MyException(String message) {
-        super(message);
-    }
-}
